@@ -135,7 +135,7 @@ const AddBlogForm = () => {
     try {
       const res = await axios.post("http://localhost:8000/api/blogs", formData);
       if (res.status === 201) {
-        alert("Post created successfully!");
+        alert("Blog created successfully!");
         setTitle("");
         setValue("");
         handleRemoveImage();

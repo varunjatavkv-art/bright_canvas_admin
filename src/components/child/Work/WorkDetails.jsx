@@ -3,11 +3,12 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import Latest from "../Blog/LatestBlogs";
+import LatestWork from "./LatestWork";
 
 
 const WorkDetails = () => {
-  const { blogId } = useParams();
-  const [singleBlog, setSingleBlog] = useState({});
+  const { workId } = useParams();
+  const [singleWork, setSingleWork] = useState({});
   
   const [work, setWork] = useState([]);
 
@@ -25,18 +26,18 @@ const WorkDetails = () => {
   }, []);
 
   useEffect(() => {
-    const fetchSingleBlog = async () => {
+    const fetchSingleWork = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:8000/api/blogs/${blogId}`
+          `http://localhost:8000/api/work/${workId}`
         );
-        setSingleBlog(response.data);
+        setSingleWork(response.data);
       } catch (error) {
         console.log(error);
       }
     };
-    fetchSingleBlog();
-  }, []);
+    fetchSingleWork();
+  }, [workId]);
 
   return (
     <div className="row gy-4">
@@ -44,19 +45,20 @@ const WorkDetails = () => {
         <div className="card p-0 radius-12 overflow-hidden">
           <div className="card-body p-0">
             <img
-               src={singleBlog.image_path?.startsWith("http")
-                        ? singleBlog.image_path
-                        : `http://localhost:8000/${singleBlog.image_path}`}
+               src={singleWork.image_path?.startsWith("http")
+                        ? singleWork.image_path
+                        : `http://localhost:8000/${singleWork.image_path}`}
               alt=""
               className="w-100 h-100 object-fit-cover"
             />
+           { console.log(`http://localhost:8000/${singleWork.image_path}`)}
             <div className="p-32">
               <div className="d-flex align-items-center gap-16 justify-content-between flex-wrap mb-24">
                 <div className="d-flex align-items-center gap-8">
                   <img
-                    src={singleBlog.image_path?.startsWith("http")
-                        ? singleBlog.image_path
-                        : `http://localhost:8000/${singleBlog.image_path}`
+                    src={singleWork.image_path?.startsWith("http")
+                        ? singleWork.image_path
+                        : `http://localhost:8000/${singleWork.image_path}`
                     }
                     alt=""
                     className="w-48-px h-48-px rounded-circle object-fit-cover"
@@ -73,12 +75,14 @@ const WorkDetails = () => {
                   </div>
                   <div className="d-flex align-items-center gap-8 text-neutral-500 text-lg fw-medium">
                     <i className="ri-calendar-2-line" />
-                    {singleBlog.created_at?.split("T")[0]}
+                    {singleWork.created_at?.split("T")[0]}
                   </div>
                 </div>
               </div>
-              <h3 className="mb-16">{singleBlog.title} </h3>
-              <div dangerouslySetInnerHTML={{ __html: singleBlog.description }}></div>
+              <h3 className="mb-16">{singleWork.title} </h3>
+              <div dangerouslySetInnerHTML={{ __html: singleWork.description }}></div>
+              <h3  className="mb-16">Your Services</h3>
+              <div dangerouslySetInnerHTML={{ __html: singleWork.service }}></div>
             </div>
           </div>
         </div>
@@ -358,7 +362,7 @@ const WorkDetails = () => {
             </div>
           </div>
          
-         <Latest data={work} title="Latest Work"/>
+         <LatestWork/>
           {/* Category */}
           <div className="card">
             <div className="card-header border-bottom">

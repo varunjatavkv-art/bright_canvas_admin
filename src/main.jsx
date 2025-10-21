@@ -31,7 +31,7 @@ createRoot(document.getElementById("root")).render(
           <Route path="work" element={<Work />}>
             <Route index element={<WorkLayer />} />
             <Route path="add-work" element={<AddWork />} />
-            <Route path="work-details" element={<WorkDetails />} />
+            <Route path="work-details/:workId" element={<WorkDetails />} />
           </Route>
         </Route>
       </Routes>
