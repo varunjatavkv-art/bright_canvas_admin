@@ -207,16 +207,16 @@ const MasterLayout = () => {
 
             {/* Invoice Dropdown */}
             <li className="dropdown">
-              <Link href="#">
+              <Link to="#">
                 <Icon icon="hugeicons:invoice-03" className="menu-icon" />
                 <span>Invoice</span>
               </Link>
               <ul className="sidebar-submenu">
                 <li>
                   <Link
-                    href="/invoice-list"
+                    to="/invoice"
                     className={
-                      pathname === "/invoice-list" ? "active-page" : ""
+                      pathname === "/invoice" ? "active-page" : ""
                     }
                   >
                     <i className="ri-circle-fill circle-icon text-primary-600 w-auto" />{" "}
@@ -225,9 +225,9 @@ const MasterLayout = () => {
                 </li>
                 <li>
                   <Link
-                    href="/invoice-preview"
+                    to="/invoice/invoice-preview"
                     className={
-                      pathname === "/invoice-preview" ? "active-page" : ""
+                      pathname === "/invoice/invoice-preview" ? "active-page" : ""
                     }
                   >
                     <i className="ri-circle-fill circle-icon text-warning-main w-auto" />
@@ -236,8 +236,8 @@ const MasterLayout = () => {
                 </li>
                 <li>
                   <Link
-                    href="/invoice-add"
-                    className={pathname === "/invoice-add" ? "active-page" : ""}
+                    to="/invoice/invoice-add"
+                    className={pathname === "/invoice/invoice-add" ? "active-page" : ""}
                   >
                     <i className="ri-circle-fill circle-icon text-info-main w-auto" />{" "}
                     Add new

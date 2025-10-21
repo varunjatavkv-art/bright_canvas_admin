@@ -17,6 +17,12 @@ import AddWork from "./components/child/Work/AddWork.jsx";
 import WorkDetails from "./components/child/Work/WorkDetails.jsx";
 import WorkLayer from "./components/child/Work/WorkLayer.jsx";
 
+//? Invoice
+import Invoice from "./components/Invoice.jsx";
+import AddInvoice from "./components/child/Invoice/AddInvoice.jsx";
+import InvoiceList from "./components/child/Invoice/InvoiceList.jsx";
+import InvoicePreview from "./components/child/Invoice/InvoicePreview.jsx";
+
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <BrowserRouter>
@@ -32,6 +38,11 @@ createRoot(document.getElementById("root")).render(
             <Route index element={<WorkLayer />} />
             <Route path="add-work" element={<AddWork />} />
             <Route path="work-details/:workId" element={<WorkDetails />} />
+          </Route>
+          <Route path="invoice" element={<Invoice />}>
+            <Route index element={<InvoiceList />} />
+            <Route path="invoice-add" element={<AddInvoice />} />
+            <Route path="invoice-preview" element={<InvoicePreview />} />
           </Route>
         </Route>
       </Routes>
