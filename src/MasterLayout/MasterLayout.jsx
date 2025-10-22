@@ -977,11 +977,11 @@ const MasterLayout = () => {
         <footer className="d-footer">
           <div className="row align-items-center justify-content-between">
             <div className="col-auto">
-              <p className="mb-0">© 2025 WowDash. All Rights Reserved.</p>
+              <p className="mb-0">© 2025 Bright Canvas. All Rights Reserved.</p>
             </div>
             <div className="col-auto">
               <p className="mb-0">
-                Made by <span className="text-primary-600">wowtheme7</span>
+                Bright Canvas Admin
               </p>
             </div>
           </div>
