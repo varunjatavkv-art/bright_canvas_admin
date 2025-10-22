@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import NoDataFound from "../../common/NoDataFound";
+import Breadcrumb from "../../Breadcrumb";
 
 const BlogLayer = () => {
   const [blog, setBlog] = useState([]);
@@ -64,6 +65,8 @@ const BlogLayer = () => {
   }
 
   return (
+    <>
+    <Breadcrumb title={"Blog"} />
     <div className="row gy-4">
       {blog?.map((data, idx) => {
         // 🚨 NEW: Use the helper function to get safe, truncated text
@@ -129,9 +132,11 @@ const BlogLayer = () => {
               </div>
             </div>
           </div>
+          
         );
       })}
     </div>
+    </>
   );
 };
 

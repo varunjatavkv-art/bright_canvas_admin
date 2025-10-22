@@ -11,7 +11,7 @@ const AddBlogLayer = () => {
 
       {/* Sidebar  */}
       <div className="col-lg-4">
-      <LatestWork tu />
+      <LatestWork />
       </div>
     </div>
   );
