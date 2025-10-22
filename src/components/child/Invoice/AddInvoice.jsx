@@ -1,7 +1,7 @@
 import { Icon } from "@iconify/react/dist/iconify.js";
 import Breadcrumb from "../../Breadcrumb";
 import { v4 as uuidv4 } from "uuid";
-import { useEffect, useState } from "react";
+import { useEffect, useState , useMemo } from "react";
 
 const AddInvoice = () => {
   const [invoiceNumber, setInvoiceNumber] = useState("");
@@ -11,10 +11,20 @@ const AddInvoice = () => {
   const [issueDate, setIssueDate] = useState();
   const [dueDate, setDueDate] = useState();
 
-  const [price, setPrice] = useState(0);
-  const [qty, setQty] = useState(1);
+  const [customerName, setCustomerName] = useState("");
+  const [customerAddress, setCustomerAddress] = useState("");
+  const [customerPhone, setCustomerPhone] = useState("");
 
-  
+
+  const createNewItem = (serial) => ({
+    id: uuidv4(), // Unique identifier for React key and state updates
+    serial: serial,
+    description: "",
+    qty: 1,
+    unit: "-1",
+    unitPrice: 0,
+  });
+  const [items, setItems] = useState([createNewItem(1)]);
 
   useEffect(() => {
     const generateInvoiceNumber = () => {
@@ -32,8 +42,8 @@ const AddInvoice = () => {
         .replace(/-/g, "")
         .toUpperCase()
         .substring(4, 8)}`;
-        setOrderID(formatedOrderID);
-    }
+      setOrderID(formatedOrderID);
+    };
 
     const generateShipmentID = () => {
       const newShipmentID = uuidv4();
@@ -41,26 +51,114 @@ const AddInvoice = () => {
         .replace(/-/g, "")
         .toUpperCase()
         .substring(7, 11)}`;
-        setShipmentID(formatedID);
-    }
+      setShipmentID(formatedID);
+    };
 
     generateInvoiceNumber();
     generateOrderID();
     generateShipmentID();
   }, []);
 
-  const addNew = () => {
-    console.log("add new");
-    
-  }
+  const handleAddItem = () => {
+    const newSerial = items.length + 1;
+    setItems((prevItems) => [...prevItems,createNewItem(newSerial)]);
+  };
+
+  const handleItemChange = (id, field, value) => {
+    setItems((prevItems) =>
+      prevItems.map((item) => {
+        if (item.id === id) {
+          // Convert numeric fields to numbers, handling potential NaN
+          if (field === "qty" || field === "unitPrice") {
+            const numValue = parseFloat(value) || 0;
+            return { ...item, [field]: numValue < 0 ? 0 : numValue };
+          }
+          return { ...item, [field]: value };
+        }
+        return item;
+      })
+    );
+  };
+
+  const handleRemoveRow = (idToRemove) => {
+    setItems(prevItems => {
+        const updatedItems = prevItems
+            .filter(item => item.id !== idToRemove)
+            // Recalculate serial numbers
+            .map((item, index) => ({ ...item, serial: index + 1 }));
+        return updatedItems;
+    });
+};
+
+    // --- Invoice Totals Calculation ---
+    const { subtotal, total, tax } = useMemo(() => {
+      const calculatedSubtotal = items.reduce((acc, item) => 
+          acc + (item.qty * item.unitPrice), 
+          0
+      );
+      
+      // For simplicity, using static values from your original component
+      const discountAmount = 0; // Could be dynamic state
+      const taxRate = 18; // Could be dynamic state
+      const  taxAmount = Math.round((calculatedSubtotal * taxRate) / 100); 
+      // taxAmount = Math.round(taxAmount);
+
+      const calculatedTotal = calculatedSubtotal - discountAmount + taxAmount;
+
+      return {
+          subtotal: calculatedSubtotal,
+          total: calculatedTotal,
+          tax: taxAmount
+      };
+  }, [items]);
+  
+// currency formatter
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('en-IN', {
+        style: 'currency',
+        currency: 'INR', // Using Indian Rupee symbol as per your input '₹'
+        minimumFractionDigits: 2,
+    }).format(amount);
+};
+
+// submit form
+
+const handleSubmit = (e) => {
+  e.preventDefault();
+  console.log("Form submitted. Preventing page reload.");
+        
+  // --- Accessing All State Data ---
+  const invoiceData = {
+      metadata: {
+          invoiceNumber,
+          orderID,
+          shipmentID,
+          issueDate,
+          dueDate,
+      },
+      customer: {
+          name: customerName,
+          address: customerAddress,
+          phone: customerPhone,
+      },
+      items: items,
+      summary: {
+          subtotal: subtotal,
+          total: total,
+          tax: tax
+      }
+  };
+
+  console.log(invoiceData);
+}
+
   return (
     <>
       <Breadcrumb title={"Add Invoice"} />
-      <form className="card">
+      <form className="card" onSubmit={handleSubmit}>
         <div className="card-header">
           <div className="d-flex flex-wrap align-items-center justify-content-end gap-2">
-            <button
-              type="button"
+            <button type="submit"
               className="btn btn-sm btn-primary-600 radius-8 d-inline-flex align-items-center gap-1"
             >
               <Icon icon="simple-line-icons:check" className="text-xl" />
@@ -83,12 +181,9 @@ const AddInvoice = () => {
                           id="date_issue"
                           name="date_issue"
                           value={issueDate}
-                          min="2018-01-01"
-                          max="2018-12-31"
-                          onChange={() => setIssueDate(e.target.value)}
+                          onChange={(e) => setIssueDate(e.target.value)}
+                          required
                         />
-                       
-                       
                       </p>
                       <p className="mb-0 text-sm">
                         Date Due:{" "}
@@ -96,13 +191,10 @@ const AddInvoice = () => {
                           type="date"
                           id="date_due"
                           name="date_due"
-                          // value="2018-07-22"
-                          min="2018-01-01"
-                          max="2018-12-31"
                           value={dueDate}
-                          onChange={() =>setDueDate(e.target.value)}
+                          onChange={(e) => setDueDate(e.target.value)}
+                          required
                         />
-                       
                       </p>
                     </div>
                     <div className="col-sm-4">
@@ -111,9 +203,7 @@ const AddInvoice = () => {
                         alt="image_icon"
                         className="mb-8"
                       />
-                      <p className="mb-1 text-sm">
-                        Bright Canvas
-                      </p>
+                      <p className="mb-1 text-sm">Bright Canvas</p>
                       <p className="mb-0 text-sm">
                         bright.canvas@gmail.com, +1 543 2198
                       </p>
@@ -130,8 +220,14 @@ const AddInvoice = () => {
                             <td>Name</td>
                             <td className="ps-8">
                               :{" "}
-                             
-                              <input type="text" className="p-2" placeholder="Please enter name" required/>
+                              <input
+                                type="text"
+                                className="p-2"
+                                placeholder="Please enter name"
+                                required
+                                value={customerName}
+                                onChange={(e) =>setCustomerName(e.target.value)}
+                              />
                               {/* <span className="text-success-main">
                                 <Icon icon="mage:edit" />
                               </span> */}
@@ -141,15 +237,29 @@ const AddInvoice = () => {
                             <td>Address</td>
                             <td className="ps-8">
                               :{" "}
-                              <input type="text" className="p-2" placeholder="Please enter address" required />
+                              <input
+                                type="text"
+                                className="p-2"
+                                placeholder="Please enter address"
+                                required
+                                value={customerAddress}
+                                onChange={(e) =>setCustomerAddress(e.target.value)}
+                              />
                             </td>
                           </tr>
                           <tr>
                             <td>Phone number</td>
                             <td className="ps-8">
                               :{" "}
-                              <input type="text" max={10} className="p-2" placeholder="Please enter contact" required/>
-                              
+                              <input
+                                type="text"
+                                maxLength="10"
+                                className="p-2"
+                                placeholder="Please enter contact"
+                                required
+                                value={customerPhone}
+                                onChange={(e)=>setCustomerPhone(e.target.value)}
+                              />
                             </td>
                           </tr>
                         </tbody>
@@ -215,35 +325,97 @@ const AddInvoice = () => {
                           </tr>
                         </thead>
                         <tbody>
-                          <tr>
-                            <td>01</td>
-                            <td>
-                              <input type="text" name="items[]" id="item" placeholder="Type item name here" />
-                            </td>
-                            <td>
-                              <input type="number" name="qty[]" id="qty" className="w-[30px]" value={qty} onChange={(e) => setQty(e.target.value)}/>
-                            </td>
-                            <td>
-                              <select name="units[]" id="unit">
-                                <option value="-1">units</option>
-                                <option value="0">PC</option>
-                                <option value="1">KG</option>
-                              </select>
-                            </td>
-                            <td>
-                            ₹ <input type="number" name="price[]" id="price" placeholder="Price" className="w-[50px]" value={price} onChange={(e) => setPrice(e.target.value)}/>
-                            </td>
-                            <td>₹ {price * qty}</td>
-                            <td className="text-center">
-                              <button type="button" className="remove-row">
-                                <Icon
-                                  icon="ic:twotone-close"
-                                  className="text-danger-main text-xl"
+                          {items.map((item) => (
+                            <tr
+                              key={item.id}
+                              className="border-b hover:bg-gray-50 transition duration-100"
+                            >
+                              <td className="px-3 py-3 text-center">
+                                {String(item.serial).padStart(2, "0")}
+                              </td>
+                              <td className="px-6 py-3">
+                                <input
+                                  type="text"
+                                  placeholder="Type item name here"
+                                  value={item.description}
+                                  onChange={(e) =>
+                                    handleItemChange(
+                                      item.id,
+                                      "description",
+                                      e.target.value
+                                    )
+                                  }
+                                  className="w-full border-b border-gray-200 p-1 focus:outline-none focus:border-blue-400"
                                 />
-                              </button>
-                            </td>
-                          </tr>
-                        
+                              </td>
+                              <td className="px-6 py-3">
+                                <input
+                                  type="number"
+                                  min="1"
+                                  value={item.qty}
+                                  onChange={(e) =>
+                                    handleItemChange(
+                                      item.id,
+                                      "qty",
+                                      e.target.value
+                                    )
+                                  }
+                                  className="w-16 text-center border-b border-gray-200 p-1 focus:outline-none focus:border-blue-400"
+                                />
+                              </td>
+                              <td className="px-6 py-3">
+                                <select
+                                  value={item.unit}
+                                  onChange={(e) =>
+                                    handleItemChange(
+                                      item.id,
+                                      "unit",
+                                      e.target.value
+                                    )
+                                  }
+                                  className="w-full border-b border-gray-200 p-1 focus:outline-none focus:border-blue-400"
+                                >
+                                  <option value="-1">Units</option>
+                                  <option value="0">PC</option>
+                                  <option value="1">KG</option>
+                                  <option value="2">HR</option>
+                                </select>
+                              </td>
+                              <td className="px-6 py-3 text-right">
+                                <div className="flex items-center justify-end">
+                                  <span>₹</span>
+                                  <input
+                                    type="text"
+                                    placeholder="Price"
+                                    value={item.unitPrice}
+                                    onChange={(e) =>
+                                      handleItemChange(
+                                        item.id,
+                                        "unitPrice",
+                                        e.target.value
+                                      )
+                                    }
+                                    className="w-20 text-right border-b border-gray-200 p-1 focus:outline-none focus:border-blue-400"
+                                  />
+                                </div>
+                              </td>
+                              <td className="px-6 py-3 text-right font-semibold text-gray-700">
+                                {formatCurrency(item.qty * item.unitPrice)}
+                              </td>
+                              <td className="text-center px-3 py-3">
+                                <button
+                                  type="button"
+                                  onClick={() => handleRemoveRow(item.id)}
+                                  className="text-red-500 hover:text-red-700 transition duration-150 p-1 rounded-full hover:bg-red-50"
+                                >
+                                  <Icon
+                                    icon="ic:twotone-close"
+                                    className="w-5 h-5"
+                                  />
+                                </button>
+                              </td>
+                            </tr>
+                          ))}
                         </tbody>
                       </table>
                     </div>
@@ -252,7 +424,7 @@ const AddInvoice = () => {
                         type="button"
                         id="addRow"
                         className="btn btn-sm btn-primary-600 radius-8 d-inline-flex align-items-center gap-1"
-                        onClick={addNew}
+                        onClick={handleAddItem}
                       >
                         <Icon
                           icon="simple-line-icons:plus"
@@ -278,23 +450,23 @@ const AddInvoice = () => {
                               <td className="pe-64">Subtotal:</td>
                               <td className="pe-16">
                                 <span className="text-primary-light fw-semibold">
-                                  $4000.00
+                                  {formatCurrency(subtotal)}
                                 </span>
                               </td>
                             </tr>
                             <tr>
-                              <td className="pe-64">Discount:</td>
+                              <td className="pe-64">Discount (0%):</td>
                               <td className="pe-16">
                                 <span className="text-primary-light fw-semibold">
-                                  $0.00
+                                  {formatCurrency(0)}
                                 </span>
                               </td>
                             </tr>
                             <tr>
-                              <td className="pe-64 border-bottom pb-4">Tax:</td>
+                              <td className="pe-64 border-bottom pb-4">Tax (18%):</td>
                               <td className="pe-16 border-bottom pb-4">
                                 <span className="text-primary-light fw-semibold">
-                                  0.00
+                                 {formatCurrency(tax)}
                                 </span>
                               </td>
                             </tr>
@@ -306,7 +478,7 @@ const AddInvoice = () => {
                               </td>
                               <td className="pe-16 pt-4">
                                 <span className="text-primary-light fw-semibold">
-                                  $1690
+                                {formatCurrency(total)}
                                 </span>
                               </td>
                             </tr>
