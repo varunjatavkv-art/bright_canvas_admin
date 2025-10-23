@@ -159,7 +159,7 @@ const InvoiceList = () => {
                           alt={`Avatar for ${invoice.customer?.name || "User"}`}
                           className="flex-shrink-0 w-8 h-8 rounded-full mr-3 border border-indigo-200"
                         />
-                        <span className="font-medium text-gray-700">
+                        <span className="font-medium text-gray-700 px-4">
                           {/* Use customer.name */}
                           {invoice.customer?.name || "Unknown Customer"}
                         </span>
