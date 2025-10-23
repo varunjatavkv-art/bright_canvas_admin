@@ -9,29 +9,110 @@ import {
 } from "../../../commonFunctions/common.functions";
 import LoadingComponent from "../../common/LoadingComponent";
 import NotFound from "../../common/NotFound";
+import { EmptyData } from "../../common/EmptyData";
 
 const InvoiceList = () => {
   const [invoiceList, setInvoiceList] = useState([]);
   const [Loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+  const [search, setSearch] = useState('');
+
+  const [totalItems, setTotalItems] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+  const [status, setStatus] = useState("");
+
+
+  const startItem = (currentPage - 1) * limit + 1;
+  const endItem = Math.min(currentPage * limit, totalItems);
+
+
   useEffect(() => {
     // setLoading(true);
     const fetchInvoices = async () => {
       try {
-        const res = await axios.get("http://localhost:8000/api/invoice");
+        const res = await axios.get(`http://localhost:8000/api/invoice?page=${currentPage}&limit=${limit}&search=${search}&status=${status}`);
         console.log(res.data);
         setInvoiceList(res.data);
         setLoading(false);
         setError(false);
+        setTotalItems(res.data.totalItems);
+        setTotalPages(res.data.totalPages);
       } catch (error) {
         console.error(error.message);
         setError(true);
       }
     };
     fetchInvoices();
-  }, []);
+  }, [currentPage, search, limit, status]);
 
+
+  const getPages = () => {
+    const pageNumbers = [];
+    const maxPagesToShow = 5; // Max number of page numbers to show (e.g., 1 ... 3 4 [5] 6 7 ... 10)
+    let startPage, endPage;
+
+    if (totalPages <= maxPagesToShow) {
+        // Fewer than maxPagesToShow total pages, show all
+        startPage = 1;
+        endPage = totalPages;
+    } else {
+        // More than maxPagesToShow total pages
+        const middle = Math.floor(maxPagesToShow / 2);
+        if (currentPage <= middle) {
+            // Near the start
+            startPage = 1;
+            endPage = maxPagesToShow;
+        } else if (currentPage + middle >= totalPages) {
+            // Near the end
+            startPage = totalPages - maxPagesToShow + 1;
+            endPage = totalPages;
+        } else {
+            // In the middle
+            startPage = currentPage - middle + (maxPagesToShow % 2 === 0 ? 1 : 0);
+            endPage = currentPage + middle;
+        }
+    }
+
+    // Add first page and ellipsis if needed
+    if (startPage > 1) {
+      pageNumbers.push(1);
+      if (startPage > 2) {
+          pageNumbers.push('...');
+      }
+  }
+
+  // Add the page numbers in the calculated range
+  for (let i = startPage; i <= endPage; i++) {
+      pageNumbers.push(i);
+  }
+
+  // Add ellipsis and last page if needed
+  if (endPage < totalPages) {
+      if (endPage < totalPages - 1) {
+          pageNumbers.push('...');
+      }
+      pageNumbers.push(totalPages);
+  }
+
+  return [...new Set(pageNumbers)];
+  }
+
+
+  const handlePageChange = (newPage) => {
+    if(newPage >= 1 && newPage <= totalPages){
+      setCurrentPage(newPage)
+    }
+  }
+
+  // const handleSearch = (search) => {
+  //   setSearch(search)
+  // }
+  if(invoiceList?.totalItems == 0){
+    return <EmptyData message="Invoice List is Empty !! Please create some invoices" />
+  }
   if(Loading){
     return <LoadingComponent/>
   }
@@ -48,7 +129,7 @@ const InvoiceList = () => {
               <span>Show</span>
               <select
                 className="form-select form-select-sm w-auto"
-                defaultValue="Select Number"
+                defaultValue="Select Number" onClick={(e) => setLimit(e.target.value)}
               >
                 <option value="Select Number" disabled>
                   Select Number
@@ -64,6 +145,7 @@ const InvoiceList = () => {
                 name="#0"
                 className="form-control form-control-sm w-auto"
                 placeholder="Search"
+                onChange={(e) => setSearch(e.target.value)}
               />
               <span className="icon">
                 <Icon icon="ion:search-outline" />
@@ -73,13 +155,14 @@ const InvoiceList = () => {
           <div className="d-flex flex-wrap align-items-center gap-3">
             <select
               className="form-select form-select-sm w-auto"
-              defaultValue="Select Status"
+              defaultValue=""
+              onClick={(e) => setStatus(e.target.value)}
             >
-              <option value="Select Status" disabled>
+              <option value="" disabled>
                 Select Status
               </option>
-              <option value="Paid">Paid</option>
-              <option value="Pending">Pending</option>
+              <option value="0">Pending</option>
+              <option value="1">Paid</option>
             </select>
             <Link to="invoice-add" className="btn btn-sm btn-primary-600">
               <i className="ri-add-line" /> Create Invoice
@@ -112,7 +195,7 @@ const InvoiceList = () => {
               </tr>
             </thead>
             <tbody>
-              {invoiceList.map((invoice, idx) => {
+              {invoiceList.data?.map((invoice, idx) => {
                 // Safely access the first item's serial number for the list index column
                 const serialNumber = idx + 1;
 
@@ -214,54 +297,65 @@ const InvoiceList = () => {
               })}
             </tbody>
           </table>
-          <div className="d-flex flex-wrap align-items-center justify-content-between gap-2 mt-24">
-            <span>Showing 1 to 10 of 12 entries</span>
-            <ul className="pagination d-flex flex-wrap align-items-center gap-2 justify-content-center">
-              <li className="page-item">
-                <Link
-                  className="page-link text-secondary-light fw-medium radius-4 border-0 px-10 py-10 d-flex align-items-center justify-content-center h-32-px  me-8 w-32-px bg-base"
-                  to="#"
+          {/* <div className="d-flex flex-wrap align-items-center justify-content-between gap-2 mt-24">
+            <span>Showing {startItem} to {endItem} of {totalItems} entries</span> */}
+            {/* Dynamic Pagination Controls */}
+      {!Loading && totalPages > 1 && totalItems > 0 && (
+        <div className="d-flex flex-wrap align-items-center justify-content-between gap-2 mt-24">
+          <span>
+            Showing {startItem} to {endItem} of {totalItems} entries
+          </span>
+
+          <ul className="pagination d-flex flex-wrap align-items-center gap-2 justify-content-center">
+            {/* Previous Page Button */}
+            <li className="page-item">
+                <button
+                    className="page-link text-secondary-light fw-medium radius-4 border-0 px-10 py-10 d-flex align-items-center justify-content-center h-32-px me-8 w-32-px bg-base disabled:opacity-50"
+                    onClick={() => handlePageChange(currentPage - 1)}
+                    disabled={currentPage === 1}
                 >
-                  <Icon icon="ep:d-arrow-left" className="text-xl" />
-                </Link>
-              </li>
-              <li className="page-item">
-                <Link
-                  className="page-link bg-primary-600 text-white fw-medium radius-4 border-0 px-10 py-10 d-flex align-items-center justify-content-center h-32-px  me-8 w-32-px"
-                  to="#"
+                    &laquo; {/* Icon: Double left arrow */}
+                </button>
+            </li>
+
+            {/* Dynamic Page Links */}
+            {getPages().map((page, index) => (
+                <li className="page-item" key={index}>
+                    {page === '...' ? (
+                        <span className="page-link text-gray-500 fw-medium radius-4 border-0 px-10 py-10 d-flex align-items-center justify-content-center h-32-px me-8 w-32-px">
+                            ...
+                        </span>
+                    ) : (
+                        <button
+                            className={`page-link fw-medium radius-4 border-0 px-10 py-10 d-flex align-items-center justify-content-center h-32-px me-8 w-32-px 
+                                ${currentPage === page 
+                                    ? "bg-primary-600 text-white" 
+                                    : "bg-primary-50 text-secondary-light hover:bg-primary-100"
+                                }`}
+                            onClick={() => handlePageChange(page)}
+                        >
+                            {page}
+                        </button>
+                    )}
+                </li>
+            ))}
+
+            {/* Next Page Button */}
+            <li className="page-item">
+                <button
+                    className="page-link text-secondary-light fw-medium radius-4 border-0 px-10 py-10 d-flex align-items-center justify-content-center h-32-px me-8 w-32-px bg-base disabled:opacity-50"
+                    onClick={() => handlePageChange(currentPage + 1)}
+                    disabled={currentPage === totalPages}
                 >
-                  1
-                </Link>
-              </li>
-              <li className="page-item">
-                <Link
-                  className="page-link bg-primary-50 text-secondary-light fw-medium radius-4 border-0 px-10 py-10 d-flex align-items-center justify-content-center h-32-px  me-8 w-32-px"
-                  to="#"
-                >
-                  2
-                </Link>
-              </li>
-              <li className="page-item">
-                <Link
-                  className="page-link bg-primary-50 text-secondary-light fw-medium radius-4 border-0 px-10 py-10 d-flex align-items-center justify-content-center h-32-px  me-8 w-32-px"
-                  to="#"
-                >
-                  3
-                </Link>
-              </li>
-              <li className="page-item">
-                <Link
-                  className="page-link text-secondary-light fw-medium radius-4 border-0 px-10 py-10 d-flex align-items-center justify-content-center h-32-px  me-8 w-32-px bg-base"
-                  to="#"
-                >
-                  {" "}
-                  <Icon icon="ep:d-arrow-right" className="text-xl" />{" "}
-                </Link>
-              </li>
-            </ul>
+                    &raquo; {/* Icon: Double right arrow */}
+                </button>
+            </li>
+          </ul>
+        </div>
+      )}
           </div>
         </div>
-      </div>
+      {/* </div> */}
     </>
   );
 };

@@ -153,7 +153,6 @@ const AddInvoice = () => {
         `http://localhost:8000/api/invoice`,
         invoiceData
       );
-      console.log(res);
       setInvoiceNumber("");
       setOrderID("");
       setShipmentID("");
@@ -164,7 +163,14 @@ const AddInvoice = () => {
       setCustomerPhone("");
       setDueDate("");
       setStatus("");
-      navigate('invoice');
+      if(res.status == 201){
+        alert("Invoice Created Successfully");
+        navigate('/invoice');
+      }
+      if(res.status == 404){
+        alert("Message : ", res.error);
+      }
+      
     } catch (error) {
       console.error("Error in post request :", error);
     }
