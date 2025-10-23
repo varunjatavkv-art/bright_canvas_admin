@@ -2,6 +2,8 @@ import { Icon } from "@iconify/react/dist/iconify.js";
 import Breadcrumb from "../../Breadcrumb";
 import { v4 as uuidv4 } from "uuid";
 import { useEffect, useState , useMemo } from "react";
+import axios from "axios";
+import { formatCurrency } from "../../../commonFunctions/common.functions";
 
 const AddInvoice = () => {
   const [invoiceNumber, setInvoiceNumber] = useState("");
@@ -112,18 +114,11 @@ const AddInvoice = () => {
       };
   }, [items]);
   
-// currency formatter
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-IN', {
-        style: 'currency',
-        currency: 'INR', // Using Indian Rupee symbol as per your input '₹'
-        minimumFractionDigits: 2,
-    }).format(amount);
-};
+
 
 // submit form
 
-const handleSubmit = (e) => {
+const handleSubmit = async (e) => {
   e.preventDefault();
   console.log("Form submitted. Preventing page reload.");
         
@@ -150,6 +145,21 @@ const handleSubmit = (e) => {
   };
 
   console.log(invoiceData);
+  try {
+    const res = await axios.post(`http://localhost:8000/api/invoice`, invoiceData);
+    console.log(res);
+    setInvoiceNumber("");
+    setOrderID("");
+    setShipmentID("");
+    setIssueDate("");
+    setItems("");
+    setCustomerAddress("");
+    setCustomerName("");
+    setCustomerPhone("");
+    setDueDate("");
+  } catch (error) {
+    console.error("Error in post request :", error);   
+  }
 }
 
   return (
