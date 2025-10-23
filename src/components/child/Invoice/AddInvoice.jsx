@@ -1,9 +1,10 @@
 import { Icon } from "@iconify/react/dist/iconify.js";
 import Breadcrumb from "../../Breadcrumb";
 import { v4 as uuidv4 } from "uuid";
-import { useEffect, useState , useMemo } from "react";
+import { useEffect, useState, useMemo } from "react";
 import axios from "axios";
 import { formatCurrency } from "../../../commonFunctions/common.functions";
+import { useNavigate } from "react-router-dom";
 
 const AddInvoice = () => {
   const [invoiceNumber, setInvoiceNumber] = useState("");
@@ -16,7 +17,10 @@ const AddInvoice = () => {
   const [customerName, setCustomerName] = useState("");
   const [customerAddress, setCustomerAddress] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
+  const [status, setStatus] = useState("-1");
 
+
+  const navigate = useNavigate();
 
   const createNewItem = (serial) => ({
     id: uuidv4(), // Unique identifier for React key and state updates
@@ -63,7 +67,7 @@ const AddInvoice = () => {
 
   const handleAddItem = () => {
     const newSerial = items.length + 1;
-    setItems((prevItems) => [...prevItems,createNewItem(newSerial)]);
+    setItems((prevItems) => [...prevItems, createNewItem(newSerial)]);
   };
 
   const handleItemChange = (id, field, value) => {
@@ -83,84 +87,88 @@ const AddInvoice = () => {
   };
 
   const handleRemoveRow = (idToRemove) => {
-    setItems(prevItems => {
-        const updatedItems = prevItems
-            .filter(item => item.id !== idToRemove)
-            // Recalculate serial numbers
-            .map((item, index) => ({ ...item, serial: index + 1 }));
-        return updatedItems;
+    setItems((prevItems) => {
+      const updatedItems = prevItems
+        .filter((item) => item.id !== idToRemove)
+        // Recalculate serial numbers
+        .map((item, index) => ({ ...item, serial: index + 1 }));
+      return updatedItems;
     });
-};
+  };
 
-    // --- Invoice Totals Calculation ---
-    const { subtotal, total, tax } = useMemo(() => {
-      const calculatedSubtotal = items.reduce((acc, item) => 
-          acc + (item.qty * item.unitPrice), 
-          0
-      );
-      
-      // For simplicity, using static values from your original component
-      const discountAmount = 0; // Could be dynamic state
-      const taxRate = 18; // Could be dynamic state
-      const  taxAmount = Math.round((calculatedSubtotal * taxRate) / 100); 
-      // taxAmount = Math.round(taxAmount);
+  // --- Invoice Totals Calculation ---
+  const { subtotal, total, tax } = useMemo(() => {
+    const calculatedSubtotal = items.reduce(
+      (acc, item) => acc + item.qty * item.unitPrice,
+      0
+    );
 
-      const calculatedTotal = calculatedSubtotal - discountAmount + taxAmount;
+    // For simplicity, using static values from your original component
+    const discountAmount = 0; // Could be dynamic state
+    const taxRate = 18; // Could be dynamic state
+    const taxAmount = Math.round((calculatedSubtotal * taxRate) / 100);
+    // taxAmount = Math.round(taxAmount);
 
-      return {
-          subtotal: calculatedSubtotal,
-          total: calculatedTotal,
-          tax: taxAmount
-      };
+    const calculatedTotal = calculatedSubtotal - discountAmount + taxAmount;
+
+    return {
+      subtotal: calculatedSubtotal,
+      total: calculatedTotal,
+      tax: taxAmount,
+    };
   }, [items]);
-  
 
+  // submit form
 
-// submit form
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    console.log("Form submitted. Preventing page reload.");
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  console.log("Form submitted. Preventing page reload.");
-        
-  // --- Accessing All State Data ---
-  const invoiceData = {
+    // --- Accessing All State Data ---
+    const invoiceData = {
       metadata: {
-          invoiceNumber,
-          orderID,
-          shipmentID,
-          issueDate,
-          dueDate,
+        invoiceNumber,
+        orderID,
+        shipmentID,
+        issueDate,
+        dueDate,
       },
       customer: {
-          name: customerName,
-          address: customerAddress,
-          phone: customerPhone,
+        name: customerName,
+        address: customerAddress,
+        phone: customerPhone,
       },
       items: items,
       summary: {
-          subtotal: subtotal,
-          total: total,
-          tax: tax
-      }
-  };
+        subtotal: subtotal,
+        total: total,
+        tax: tax,
+        status: status
+      },
+    };
 
-  console.log(invoiceData);
-  try {
-    const res = await axios.post(`http://localhost:8000/api/invoice`, invoiceData);
-    console.log(res);
-    setInvoiceNumber("");
-    setOrderID("");
-    setShipmentID("");
-    setIssueDate("");
-    setItems("");
-    setCustomerAddress("");
-    setCustomerName("");
-    setCustomerPhone("");
-    setDueDate("");
-  } catch (error) {
-    console.error("Error in post request :", error);   
-  }
-}
+    console.log(invoiceData);
+    try {
+      const res = await axios.post(
+        `http://localhost:8000/api/invoice`,
+        invoiceData
+      );
+      console.log(res);
+      setInvoiceNumber("");
+      setOrderID("");
+      setShipmentID("");
+      setIssueDate("");
+      // setItems("");
+      setCustomerAddress("");
+      setCustomerName("");
+      setCustomerPhone("");
+      setDueDate("");
+      setStatus("");
+      navigate('invoice');
+    } catch (error) {
+      console.error("Error in post request :", error);
+    }
+  };
 
   return (
     <>
@@ -168,7 +176,8 @@ const handleSubmit = async (e) => {
       <form className="card" onSubmit={handleSubmit}>
         <div className="card-header">
           <div className="d-flex flex-wrap align-items-center justify-content-end gap-2">
-            <button type="submit"
+            <button
+              type="submit"
               className="btn btn-sm btn-primary-600 radius-8 d-inline-flex align-items-center gap-1"
             >
               <Icon icon="simple-line-icons:check" className="text-xl" />
@@ -236,7 +245,9 @@ const handleSubmit = async (e) => {
                                 placeholder="Please enter name"
                                 required
                                 value={customerName}
-                                onChange={(e) =>setCustomerName(e.target.value)}
+                                onChange={(e) =>
+                                  setCustomerName(e.target.value)
+                                }
                               />
                               {/* <span className="text-success-main">
                                 <Icon icon="mage:edit" />
@@ -253,7 +264,9 @@ const handleSubmit = async (e) => {
                                 placeholder="Please enter address"
                                 required
                                 value={customerAddress}
-                                onChange={(e) =>setCustomerAddress(e.target.value)}
+                                onChange={(e) =>
+                                  setCustomerAddress(e.target.value)
+                                }
                               />
                             </td>
                           </tr>
@@ -268,7 +281,9 @@ const handleSubmit = async (e) => {
                                 placeholder="Please enter contact"
                                 required
                                 value={customerPhone}
-                                onChange={(e)=>setCustomerPhone(e.target.value)}
+                                onChange={(e) =>
+                                  setCustomerPhone(e.target.value)
+                                }
                               />
                             </td>
                           </tr>
@@ -278,19 +293,16 @@ const handleSubmit = async (e) => {
                     <div>
                       <table className="text-sm text-secondary-light">
                         <tbody>
-                          {/* <tr>
-                            <td>Issue Date</td>
-                           
-                        <input
-                          type="date"
-                          id="issue_date"
-                          name="issue_date"
-                          value="2018-07-22"
-                          min="2018-01-01"
-                          max="2018-12-31"
-                        />
-                      
-                          </tr> */}
+                          <tr>
+                            <td>Status :</td>
+                            <td className="ps-8 px-2">
+                              <select name="status" id="status" onChange={(e) => setStatus(e.target.value)}>
+                              <option value="-1">Select</option>
+                                <option value="0">Pending</option>
+                                <option value="1">Paid</option>
+                              </select>
+                            </td>
+                          </tr>
                           <tr>
                             <td>Order ID</td>
                             <td className="ps-8">: #{orderID}</td>
@@ -473,10 +485,12 @@ const handleSubmit = async (e) => {
                               </td>
                             </tr>
                             <tr>
-                              <td className="pe-64 border-bottom pb-4">Tax (18%):</td>
+                              <td className="pe-64 border-bottom pb-4">
+                                Tax (18%):
+                              </td>
                               <td className="pe-16 border-bottom pb-4">
                                 <span className="text-primary-light fw-semibold">
-                                 {formatCurrency(tax)}
+                                  {formatCurrency(tax)}
                                 </span>
                               </td>
                             </tr>
@@ -488,7 +502,7 @@ const handleSubmit = async (e) => {
                               </td>
                               <td className="pe-16 pt-4">
                                 <span className="text-primary-light fw-semibold">
-                                {formatCurrency(total)}
+                                  {formatCurrency(total)}
                                 </span>
                               </td>
                             </tr>
