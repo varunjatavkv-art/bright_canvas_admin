@@ -18,23 +18,22 @@ const InvoiceList = () => {
 
   const [currentPage, setCurrentPage] = useState(1);
   const [limit, setLimit] = useState(10);
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState("");
 
   const [totalItems, setTotalItems] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
   const [status, setStatus] = useState("");
 
-
   const startItem = (currentPage - 1) * limit + 1;
   const endItem = Math.min(currentPage * limit, totalItems);
-
 
   useEffect(() => {
     // setLoading(true);
     const fetchInvoices = async () => {
       try {
-        const res = await axios.get(`http://localhost:8000/api/invoice?page=${currentPage}&limit=${limit}&search=${search}&status=${status}`);
-        console.log(res.data);
+        const res = await axios.get(
+          `http://localhost:8000/api/invoice?page=${currentPage}&limit=${limit}&search=${search}&status=${status}`
+        );
         setInvoiceList(res.data);
         setLoading(false);
         setError(false);
@@ -48,76 +47,103 @@ const InvoiceList = () => {
     fetchInvoices();
   }, [currentPage, search, limit, status]);
 
-
   const getPages = () => {
     const pageNumbers = [];
     const maxPagesToShow = 5; // Max number of page numbers to show (e.g., 1 ... 3 4 [5] 6 7 ... 10)
     let startPage, endPage;
 
     if (totalPages <= maxPagesToShow) {
-        // Fewer than maxPagesToShow total pages, show all
-        startPage = 1;
-        endPage = totalPages;
+      // Fewer than maxPagesToShow total pages, show all
+      startPage = 1;
+      endPage = totalPages;
     } else {
-        // More than maxPagesToShow total pages
-        const middle = Math.floor(maxPagesToShow / 2);
-        if (currentPage <= middle) {
-            // Near the start
-            startPage = 1;
-            endPage = maxPagesToShow;
-        } else if (currentPage + middle >= totalPages) {
-            // Near the end
-            startPage = totalPages - maxPagesToShow + 1;
-            endPage = totalPages;
-        } else {
-            // In the middle
-            startPage = currentPage - middle + (maxPagesToShow % 2 === 0 ? 1 : 0);
-            endPage = currentPage + middle;
-        }
+      // More than maxPagesToShow total pages
+      const middle = Math.floor(maxPagesToShow / 2);
+      if (currentPage <= middle) {
+        // Near the start
+        startPage = 1;
+        endPage = maxPagesToShow;
+      } else if (currentPage + middle >= totalPages) {
+        // Near the end
+        startPage = totalPages - maxPagesToShow + 1;
+        endPage = totalPages;
+      } else {
+        // In the middle
+        startPage = currentPage - middle + (maxPagesToShow % 2 === 0 ? 1 : 0);
+        endPage = currentPage + middle;
+      }
     }
 
     // Add first page and ellipsis if needed
     if (startPage > 1) {
       pageNumbers.push(1);
       if (startPage > 2) {
-          pageNumbers.push('...');
+        pageNumbers.push("...");
       }
-  }
+    }
 
-  // Add the page numbers in the calculated range
-  for (let i = startPage; i <= endPage; i++) {
+    // Add the page numbers in the calculated range
+    for (let i = startPage; i <= endPage; i++) {
       pageNumbers.push(i);
-  }
+    }
 
-  // Add ellipsis and last page if needed
-  if (endPage < totalPages) {
+    // Add ellipsis and last page if needed
+    if (endPage < totalPages) {
       if (endPage < totalPages - 1) {
-          pageNumbers.push('...');
+        pageNumbers.push("...");
       }
       pageNumbers.push(totalPages);
-  }
+    }
 
-  return [...new Set(pageNumbers)];
-  }
-
+    return [...new Set(pageNumbers)];
+  };
 
   const handlePageChange = (newPage) => {
-    if(newPage >= 1 && newPage <= totalPages){
-      setCurrentPage(newPage)
+    if (newPage >= 1 && newPage <= totalPages) {
+      setCurrentPage(newPage);
     }
-  }
+  };
 
-  // const handleSearch = (search) => {
-  //   setSearch(search)
-  // }
-  if(invoiceList?.totalItems == 0){
-    return <EmptyData message="Invoice List is Empty !! Please create some invoices" />
+  const handleDelete = async (id) => {
+    try {
+      const res = await axios.delete(`http://localhost:8000/api/invoice/${id}`);
+      if (res.status == 200) {
+        alert(res.data.message);
+        setInvoiceList((prevInvoice) => {
+          if (prevInvoice && Array.isArray(prevInvoice.data)) {
+            // If it's the full object, filter the 'data' array and return the new object
+            const newArray = prevInvoice.data.filter(
+              (invoice) => invoice._id !== id
+            );
+            return {
+              ...prevInvoice, // Keep other properties like totalPages, etc.
+              data: newArray, // Update only the 'data' property
+            };
+          }
+
+          // Fallback for when the state IS just the array (e.g., if you changed the fetch logic)
+          if (Array.isArray(prevInvoice)) {
+            return prevInvoice.filter((invoice) => invoice._id !== id);
+          }
+
+          return prevInvoice;
+        });
+      }
+    } catch (error) {
+      console.error(error.message);
+      setError(true);
+    }
+  };
+  if (invoiceList?.totalItems == 0) {
+    return (
+      <EmptyData message="Invoice List is Empty !! Please create some invoices" />
+    );
   }
-  if(Loading){
-    return <LoadingComponent/>
+  if (Loading) {
+    return <LoadingComponent />;
   }
-  if(error){
-    return <NotFound />
+  if (error) {
+    return <NotFound />;
   }
   return (
     <>
@@ -129,7 +155,8 @@ const InvoiceList = () => {
               <span>Show</span>
               <select
                 className="form-select form-select-sm w-auto"
-                defaultValue="Select Number" onClick={(e) => setLimit(e.target.value)}
+                defaultValue="Select Number"
+                onClick={(e) => setLimit(e.target.value)}
               >
                 <option value="Select Number" disabled>
                   Select Number
@@ -263,7 +290,13 @@ const InvoiceList = () => {
 
                     {/* Status (Hardcoded as Paid based on original JSX) */}
                     <td className="py-4 px-6 whitespace-nowrap">
-                      <span className={ invoice.summary?.status === "0" ? ` bg-warning-focus text-warning-main px-24 py-4 rounded-pill fw-medium text-sm`: `bg-success-focus text-red-main px-24 py-4 rounded-pill fw-medium text-sm`}>
+                      <span
+                        className={
+                          invoice.summary?.status === "0"
+                            ? ` bg-warning-focus text-warning-main px-24 py-4 rounded-pill fw-medium text-sm`
+                            : `bg-success-focus text-red-main px-24 py-4 rounded-pill fw-medium text-sm`
+                        }
+                      >
                         {invoice.summary?.status === "0" ? "Pending" : "Paid"}
                         {/* Paid */}
                       </span>
@@ -285,12 +318,12 @@ const InvoiceList = () => {
                         <Icon icon="lucide:edit" />
                       </Link>
 
-                      <Link
-                        to="#"
+                      <button
+                        onClick={() => handleDelete(invoice._id)}
                         className="w-32-px h-32-px  me-8 bg-danger-focus text-danger-main rounded-circle d-inline-flex align-items-center justify-content-center"
                       >
                         <Icon icon="mingcute:delete-2-line" />
-                      </Link>
+                      </button>
                     </td>
                   </tr>
                 );
@@ -299,62 +332,63 @@ const InvoiceList = () => {
           </table>
           {/* <div className="d-flex flex-wrap align-items-center justify-content-between gap-2 mt-24">
             <span>Showing {startItem} to {endItem} of {totalItems} entries</span> */}
-            {/* Dynamic Pagination Controls */}
-      {!Loading && totalPages > 1 && totalItems > 0 && (
-        <div className="d-flex flex-wrap align-items-center justify-content-between gap-2 mt-24">
-          <span>
-            Showing {startItem} to {endItem} of {totalItems} entries
-          </span>
+          {/* Dynamic Pagination Controls */}
+          {!Loading && totalPages > 1 && totalItems > 0 && (
+            <div className="d-flex flex-wrap align-items-center justify-content-between gap-2 mt-24">
+              <span>
+                Showing {startItem} to {endItem} of {totalItems} entries
+              </span>
 
-          <ul className="pagination d-flex flex-wrap align-items-center gap-2 justify-content-center">
-            {/* Previous Page Button */}
-            <li className="page-item">
-                <button
+              <ul className="pagination d-flex flex-wrap align-items-center gap-2 justify-content-center">
+                {/* Previous Page Button */}
+                <li className="page-item">
+                  <button
                     className="page-link text-secondary-light fw-medium radius-4 border-0 px-10 py-10 d-flex align-items-center justify-content-center h-32-px me-8 w-32-px bg-base disabled:opacity-50"
                     onClick={() => handlePageChange(currentPage - 1)}
                     disabled={currentPage === 1}
-                >
+                  >
                     &laquo; {/* Icon: Double left arrow */}
-                </button>
-            </li>
+                  </button>
+                </li>
 
-            {/* Dynamic Page Links */}
-            {getPages().map((page, index) => (
-                <li className="page-item" key={index}>
-                    {page === '...' ? (
-                        <span className="page-link text-gray-500 fw-medium radius-4 border-0 px-10 py-10 d-flex align-items-center justify-content-center h-32-px me-8 w-32-px">
-                            ...
-                        </span>
+                {/* Dynamic Page Links */}
+                {getPages().map((page, index) => (
+                  <li className="page-item" key={index}>
+                    {page === "..." ? (
+                      <span className="page-link text-gray-500 fw-medium radius-4 border-0 px-10 py-10 d-flex align-items-center justify-content-center h-32-px me-8 w-32-px">
+                        ...
+                      </span>
                     ) : (
-                        <button
-                            className={`page-link fw-medium radius-4 border-0 px-10 py-10 d-flex align-items-center justify-content-center h-32-px me-8 w-32-px 
-                                ${currentPage === page 
-                                    ? "bg-primary-600 text-white" 
+                      <button
+                        className={`page-link fw-medium radius-4 border-0 px-10 py-10 d-flex align-items-center justify-content-center h-32-px me-8 w-32-px 
+                                ${
+                                  currentPage === page
+                                    ? "bg-primary-600 text-white"
                                     : "bg-primary-50 text-secondary-light hover:bg-primary-100"
                                 }`}
-                            onClick={() => handlePageChange(page)}
-                        >
-                            {page}
-                        </button>
+                        onClick={() => handlePageChange(page)}
+                      >
+                        {page}
+                      </button>
                     )}
-                </li>
-            ))}
+                  </li>
+                ))}
 
-            {/* Next Page Button */}
-            <li className="page-item">
-                <button
+                {/* Next Page Button */}
+                <li className="page-item">
+                  <button
                     className="page-link text-secondary-light fw-medium radius-4 border-0 px-10 py-10 d-flex align-items-center justify-content-center h-32-px me-8 w-32-px bg-base disabled:opacity-50"
                     onClick={() => handlePageChange(currentPage + 1)}
                     disabled={currentPage === totalPages}
-                >
+                  >
                     &raquo; {/* Icon: Double right arrow */}
-                </button>
-            </li>
-          </ul>
+                  </button>
+                </li>
+              </ul>
+            </div>
+          )}
         </div>
-      )}
-          </div>
-        </div>
+      </div>
       {/* </div> */}
     </>
   );
