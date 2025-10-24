@@ -106,7 +106,7 @@ const InvoiceList = () => {
 
   const handleDelete = async (id) => {
     try {
-      const res = await axios.delete(`http://localhost:8000/api/invoice/${id}`);
+      const res = await axios.delete(`http://localhost:8000/api/invoice/delete/${id}`);
       if (res.status == 200) {
         alert(res.data.message);
         setInvoiceList((prevInvoice) => {
@@ -305,14 +305,14 @@ const InvoiceList = () => {
                     {/* Actions */}
                     <td>
                       <Link
-                        to="#"
+                       
                         className="w-32-px h-32-px  me-8 bg-primary-light text-primary-600 rounded-circle d-inline-flex align-items-center justify-content-center"
                       >
                         <Icon icon="iconamoon:eye-light" />
                       </Link>
 
                       <Link
-                        to="#"
+                         to={`/invoice/invoice-edit/${invoice._id}`}
                         className="w-32-px h-32-px  me-8 bg-success-focus text-success-main rounded-circle d-inline-flex align-items-center justify-content-center"
                       >
                         <Icon icon="lucide:edit" />

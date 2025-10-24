@@ -243,9 +243,9 @@ const MasterLayout = () => {
                     Add new
                   </Link>
                 </li>
-                <li>
+                {/* <li>
                   <Link
-                    href="/invoice-edit"
+                    to="invoice/invoice-edit"
                     className={
                       pathname === "/invoice-edit" ? "active-page" : ""
                     }
@@ -253,7 +253,7 @@ const MasterLayout = () => {
                     <i className="ri-circle-fill circle-icon text-danger-main w-auto" />{" "}
                     Edit
                   </Link>
-                </li>
+                </li> */}
               </ul>
             </li>
 
