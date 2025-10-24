@@ -1,7 +1,7 @@
 import { Icon } from "@iconify/react/dist/iconify.js";
 import Breadcrumb from "../../Breadcrumb";
 import { v4 as uuidv4 } from "uuid";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import {
@@ -24,7 +24,16 @@ const EditInvoice = () => {
   const [issueDate, setIssueDate] = useState("");
   const [dueDate, setDueDate] = useState("");
   const [status, setStatus] = useState("");
-  // const [items, setItems] = useState([]);
+  const [invoiceNumber, setInvoiceNumber] = useState("");
+  const [orderID, setOrderID] = useState("");
+  const [shipmentID, setShipmentID] = useState("");
+  const [subTotal, setSubTotal] = useState("");
+  const [tax, setTax] = useState("");
+  const [total, setTotal] = useState("");
+
+  const [invoiceItems, setInvoiceItems] = useState([]);
+
+  const navigate = useNavigate();
 
   const createNewItem = (serial) => ({
     id: uuidv4(), // Unique identifier for React key and state updates
@@ -34,7 +43,9 @@ const EditInvoice = () => {
     unit: "-1",
     unitPrice: 0,
   });
-  const [newItems, setNewItems] = useState([createNewItem(1)]);
+  const [newItems, setNewItems] = useState(createNewItem(1));
+
+  console.log(newItems);
 
   useEffect(() => {
     setLoading(true);
@@ -51,9 +62,16 @@ const EditInvoice = () => {
           setCustomerPhone(res?.data?.data?.customer?.phone);
           setStatus(res?.data?.data?.summary?.status);
           setIssueDate(res?.data?.data?.matadata?.issueDate);
-          setIssueDate(res?.data?.data?.matadata?.dueDate);
-          console.log(res.data.data);
-          
+          setDueDate(res?.data?.data?.matadata?.dueDate);
+          setInvoiceNumber(res?.data?.data?.metadata?.invoiceNumber);
+          setOrderID(res?.data?.data?.metadata?.orderID);
+          setShipmentID(res?.data?.data?.metadata?.shipmentID);
+          setSubTotal(res?.data?.data?.summary?.subTotal);
+          setTax(res?.data?.data?.summary?.tax);
+          setTotal(res?.data?.data?.summary?.total);
+          setInvoiceItems(res?.data?.data?.items)
+          // console.log(res.data.data);
+
           setLoading(false);
           setError(false);
         }
@@ -77,7 +95,7 @@ const EditInvoice = () => {
   };
 
   const handleAddItem = () => {
-    const newSerial = items.length + 1;
+    const newSerial = newItems.length + 1;
     setNewItems((prevItems) => [...prevItems, createNewItem(newSerial)]);
   };
 
@@ -119,16 +137,20 @@ const EditInvoice = () => {
         phone: customerPhone,
       },
       metadata: {
-        // The backend needs a clean ISO string, not just yyyy-MM-dd,
-        // so we use new Date().toISOString()
+        invoiceNumber: invoiceNumber,
+        orderID: orderID,
+        shipmentID: shipmentID,
         issueDate: new Date(issueDate).toISOString(),
-        deusDate: new Date(dueDate).toISOString(),
+        deuDate: new Date(dueDate).toISOString(),
       },
       summary: {
         status: status,
+        total:total,
+        subtotal: subTotal,
+        tax: tax
       },
       // Send the entire updated items array
-      items: newItems,
+      items: invoiceItems,
     };
 
     try {
@@ -141,6 +163,22 @@ const EditInvoice = () => {
         alert("Invoice updated successfully!");
         // Optionally navigate the user away or re-fetch data
         // setSingleInvoice(res.data); // Update with fresh data from server
+        setSingleInvoice("");
+        setNewItems("");
+        setCustomerName("");
+        setCustomerAddress("");
+        setCustomerPhone("");
+        setStatus("");
+        setIssueDate("");
+        setIssueDate("");
+        setInvoiceNumber("");
+        setOrderID("");
+        setShipmentID("");
+        setSubTotal("");
+        setTax("");
+        setTotal("");
+        setInvoiceItems("");
+        navigate("/invoice");
       }
     } catch (error) {
       console.error("Error updating invoice:", error);
@@ -348,15 +386,15 @@ const EditInvoice = () => {
                           </tr>
                         </thead>
                         <tbody>
-                          {newItems.map((item) => {
-                            let unit;
-                            if (item.unit == "0") {
-                              unit = "PC";
-                            } else if (item.unit == "1") {
-                              unit = "KG";
-                            } else {
-                              unit = "HR";
-                            }
+                          {invoiceItems.map((item) => {
+                            // let unit;
+                            // if (item.unit == "0") {
+                            //   unit = "PC";
+                            // } else if (item.unit == "1") {
+                            //   unit = "KG";
+                            // } else {
+                            //   unit = "HR";
+                            // }
                             return (
                               <tr key={item.id}>
                                 <td> {String(item.serial).padStart(2, "0")}</td>
