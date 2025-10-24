@@ -1,15 +1,40 @@
 import { Icon } from "@iconify/react/dist/iconify.js";
 import Breadcrumb from "../../Breadcrumb";
+import { v4 as uuidv4 } from "uuid";
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { formatCurrency, formatDate } from "../../../commonFunctions/common.functions";
+import {
+  formatCurrency,
+  formatDate,
+} from "../../../commonFunctions/common.functions";
+import LoadingComponent from "../../common/LoadingComponent";
+import NotFound from "../../common/NotFound";
 
 const EditInvoice = () => {
   const { invoiceId } = useParams();
   const [singleInvoice, setSingleInvoice] = useState({});
-  const [loading, setLoading] = useState(false);
+  const [Loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
+
+  // --- NEW STATES FOR EDITING ---
+  const [customerName, setCustomerName] = useState("");
+  const [customerAddress, setCustomerAddress] = useState("");
+  const [customerPhone, setCustomerPhone] = useState("");
+  const [issueDate, setIssueDate] = useState("");
+  const [dueDate, setDueDate] = useState("");
+  const [status, setStatus] = useState("");
+  // const [items, setItems] = useState([]);
+
+  const createNewItem = (serial) => ({
+    id: uuidv4(), // Unique identifier for React key and state updates
+    serial: serial,
+    description: "",
+    qty: 1,
+    unit: "-1",
+    unitPrice: 0,
+  });
+  const [newItems, setNewItems] = useState([createNewItem(1)]);
 
   useEffect(() => {
     setLoading(true);
@@ -19,7 +44,16 @@ const EditInvoice = () => {
           "http://localhost:8000/api/invoice/single/" + invoiceId
         );
         if (res.status === 200) {
-          setSingleInvoice(res.data);
+          setSingleInvoice(res?.data);
+          setNewItems(res?.data?.data?.items);
+          setCustomerName(res?.data?.data?.customer?.name);
+          setCustomerAddress(res?.data?.data?.customer?.address);
+          setCustomerPhone(res?.data?.data?.customer?.phone);
+          setStatus(res?.data?.data?.summary?.status);
+          setIssueDate(res?.data?.data?.matadata?.issueDate);
+          setIssueDate(res?.data?.data?.matadata?.dueDate);
+          console.log(res.data.data);
+          
           setLoading(false);
           setError(false);
         }
@@ -32,17 +66,106 @@ const EditInvoice = () => {
     fetchSingleInvoice();
   }, [invoiceId]);
 
-  console.log(singleInvoice.data);
+  const handleRemoveRow = (idToRemove) => {
+    setNewItems((prevItems) => {
+      const updatedItems = prevItems
+        .filter((item) => item.id !== idToRemove)
+        // Recalculate serial numbers
+        .map((item, index) => ({ ...item, serial: index + 1 }));
+      return updatedItems;
+    });
+  };
 
+  const handleAddItem = () => {
+    const newSerial = items.length + 1;
+    setNewItems((prevItems) => [...prevItems, createNewItem(newSerial)]);
+  };
+
+  const handleItemChange = (itemId, field, value) => {
+    setNewItems((prevItems) =>
+      prevItems.map((item) => {
+        if (item.id === itemId) {
+          let updatedValue = value;
+
+          // Cleanup currency/format when updating number fields
+          if (field === "unitPrice") {
+            // Remove currency symbols, commas, and parse as float
+            updatedValue = parseFloat(value.replace(/[^0-9.]/g, "")) || 0;
+          } else if (field === "qty") {
+            // Ensure quantity is an integer
+            updatedValue = parseInt(value) || 0;
+          }
+
+          return {
+            ...item,
+            [field]: updatedValue,
+          };
+        }
+        return item;
+      })
+    );
+  };
+
+  // --- NEW UPDATE HANDLER ---
+  const handleInvoiceUpdate = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
+    // 1. Prepare the data payload (The same structure your Mongoose update expects)
+    const updatedInvoice = {
+      customer: {
+        name: customerName,
+        address: customerAddress,
+        phone: customerPhone,
+      },
+      metadata: {
+        // The backend needs a clean ISO string, not just yyyy-MM-dd,
+        // so we use new Date().toISOString()
+        issueDate: new Date(issueDate).toISOString(),
+        deusDate: new Date(dueDate).toISOString(),
+      },
+      summary: {
+        status: status,
+      },
+      // Send the entire updated items array
+      items: newItems,
+    };
+
+    try {
+      const res = await axios.put(
+        `http://localhost:8000/api/invoice/update/${invoiceId}`,
+        updatedInvoice
+      );
+
+      if (res.status === 200) {
+        alert("Invoice updated successfully!");
+        // Optionally navigate the user away or re-fetch data
+        // setSingleInvoice(res.data); // Update with fresh data from server
+      }
+    } catch (error) {
+      console.error("Error updating invoice:", error);
+      alert("Failed to update invoice. Check console for details.");
+      setError(true);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (Loading) {
+    return <LoadingComponent />;
+  }
+  if (error) {
+    return <NotFound />;
+  }
   return (
     <>
       <Breadcrumb title={"Edit Invoice"} />
 
-      <form className="card">
+      <form className="card" onSubmit={handleInvoiceUpdate}>
         <div className="card-header">
           <div className="d-flex flex-wrap align-items-center justify-content-end gap-2">
             <button
-              type="button"
+              type="submit"
               className="btn btn-sm btn-primary-600 radius-8 d-inline-flex align-items-center gap-1"
             >
               <Icon icon="simple-line-icons:check" className="text-xl" />
@@ -63,15 +186,28 @@ const EditInvoice = () => {
                       </h3>
                       <p className="mb-1 text-sm">
                         Date Issued:{" "}
-                        <span className="editable text-decoration-underline">
+                        {/* <span className="editable text-decoration-underline">
                           {formatDate(singleInvoice?.data?.metadata.issueDate)}
-                        </span>{" "}
+                        </span>{" "} */}
+                        <input
+                          type="date"
+                          id="date_issue"
+                          name="date_issue"
+                          value={issueDate}
+                          onChange={(e) => setIssueDate(e.target.value)}
+                          required
+                        />
                       </p>
                       <p className="mb-0 text-sm">
                         Date Due:{" "}
-                        <span className="editable text-decoration-underline">
-                          {formatDate(singleInvoice?.data?.metadata.dueDate)}
-                        </span>{" "}
+                        <input
+                          type="date"
+                          id="date_due"
+                          name="date_due"
+                          value={dueDate}
+                          onChange={(e) => setDueDate(e.target.value)}
+                          required
+                        />
                       </p>
                     </div>
                     <div className="col-sm-4">
@@ -97,27 +233,50 @@ const EditInvoice = () => {
                             <td>Name</td>
                             <td className="ps-8">
                               :{" "}
-                              <span> {singleInvoice?.data?.customer?.name}</span>
+                              <input
+                                type="text"
+                                className="p-2"
+                                placeholder="Please enter name"
+                                required
+                                value={customerName}
+                                onChange={(e) =>
+                                  setCustomerName(e.target.value)
+                                }
+                              />
+                              {/* <span> {singleInvoice?.data?.customer?.name}</span> */}
                             </td>
                           </tr>
                           <tr>
                             <td>Address</td>
                             <td className="ps-8">
                               :{" "}
-                              <span>
-                                {" "}
-                                {singleInvoice?.data?.customer?.address}
-                              </span>{" "}
+                              <input
+                                type="text"
+                                className="p-2"
+                                placeholder="Please enter address"
+                                required
+                                value={customerAddress}
+                                onChange={(e) =>
+                                  setCustomerAddress(e.target.value)
+                                }
+                              />
                             </td>
                           </tr>
                           <tr>
                             <td>Phone number</td>
                             <td className="ps-8">
                               :{" "}
-                              <span className="editable text-decoration-underline">
-                                {" "}
-                                {singleInvoice?.data?.customer?.phone}
-                              </span>{" "}
+                              <input
+                                type="text"
+                                maxLength="10"
+                                className="p-2"
+                                placeholder="Please enter contact"
+                                required
+                                value={customerPhone}
+                                onChange={(e) =>
+                                  setCustomerPhone(e.target.value)
+                                }
+                              />
                             </td>
                           </tr>
                         </tbody>
@@ -129,9 +288,16 @@ const EditInvoice = () => {
                           <tr>
                             <td>Status</td>
                             <td className="ps-8">
-                              {singleInvoice?.data?.summary?.status == "0"
-                                ? "Pending"
-                                : "Paid"}
+                              <select
+                                name="status"
+                                id="status"
+                                onChange={(e) => setStatus(e.target.value)}
+                                defaultValue={status}
+                              >
+                                <option value="-1">Select</option>
+                                <option value="0">Pending</option>
+                                <option value="1">Paid</option>
+                              </select>
                             </td>
                           </tr>
                           <tr>
@@ -182,28 +348,94 @@ const EditInvoice = () => {
                           </tr>
                         </thead>
                         <tbody>
-                          {singleInvoice?.data?.items.map((item) => {
+                          {newItems.map((item) => {
                             let unit;
-                            if(item.unit == "0"){
-                                unit = "PC";
-                            }else if(item.unit == "1"){
-                                unit = "KG"
-                            }else{
-                                unit = "HR"
+                            if (item.unit == "0") {
+                              unit = "PC";
+                            } else if (item.unit == "1") {
+                              unit = "KG";
+                            } else {
+                              unit = "HR";
                             }
                             return (
-                              <tr key={item._id}>
-                                <td>01</td>
-                                <td>{item.description}</td>
-                                <td>{item.qty}</td>
-                                <td>{unit}</td>
-                                <td>{formatCurrency(item.unitPrice)}</td>
-                                <td>{formatCurrency(item.qty * item.unitPrice)}</td>
+                              <tr key={item.id}>
+                                <td> {String(item.serial).padStart(2, "0")}</td>
+                                <td>
+                                  <input
+                                    type="text"
+                                    placeholder="Type item name here"
+                                    value={item.description}
+                                    onChange={(e) =>
+                                      handleItemChange(
+                                        item.id,
+                                        "description",
+                                        e.target.value
+                                      )
+                                    }
+                                    className="w-50 border-b border-gray-200 p-1 focus:outline-none focus:border-blue-400"
+                                  />
+                                </td>
+                                <td>
+                                  {" "}
+                                  <input
+                                    type="number"
+                                    min="1"
+                                    value={item.qty}
+                                    onChange={(e) =>
+                                      handleItemChange(
+                                        item.id,
+                                        "qty",
+                                        e.target.value
+                                      )
+                                    }
+                                    className="w-50 text-center border-b border-gray-200 p-1 focus:outline-none focus:border-blue-400"
+                                  />
+                                </td>
+                                <td>
+                                  <select
+                                    value={item.unit}
+                                    onChange={(e) =>
+                                      handleItemChange(
+                                        item.id,
+                                        "unit",
+                                        e.target.value
+                                      )
+                                    }
+                                    className="w-full border-b border-gray-200 p-1 focus:outline-none focus:border-blue-400"
+                                  >
+                                    <option value="-1">Units</option>
+                                    <option value="0">PC</option>
+                                    <option value="1">KG</option>
+                                    <option value="2">HR</option>
+                                  </select>
+                                </td>
+                                <td>
+                                  <input
+                                    type="text"
+                                    placeholder="Price"
+                                    value={formatCurrency(item.unitPrice)}
+                                    onChange={(e) =>
+                                      handleItemChange(
+                                        item.id,
+                                        "unitPrice",
+                                        e.target.value
+                                      )
+                                    }
+                                    className="w-50 text-center border-b border-gray-200 p-1 focus:outline-none focus:border-blue-400"
+                                  />
+                                </td>
+                                <td>
+                                  {formatCurrency(item.qty * item.unitPrice)}
+                                </td>
                                 <td className="text-center">
-                                  <button type="button" className="remove-row">
+                                  <button
+                                    type="button"
+                                    onClick={() => handleRemoveRow(item.id)}
+                                    className="text-red-500 hover:text-red-700 transition duration-150 p-1 rounded-full hover:bg-red-50"
+                                  >
                                     <Icon
                                       icon="ic:twotone-close"
-                                      className="text-danger-main text-xl"
+                                      className="w-5 h-5"
                                     />
                                   </button>
                                 </td>
@@ -213,7 +445,20 @@ const EditInvoice = () => {
                         </tbody>
                       </table>
                     </div>
-                 
+                    <div>
+                      <button
+                        type="button"
+                        id="addRow"
+                        className="btn btn-sm btn-primary-600 radius-8 d-inline-flex align-items-center gap-1"
+                        onClick={handleAddItem}
+                      >
+                        <Icon
+                          icon="simple-line-icons:plus"
+                          className="text-xl"
+                        />
+                        Add New
+                      </button>
+                    </div>
                     <div className="d-flex flex-wrap justify-content-between gap-3 mt-24">
                       <div>
                         <p className="text-sm mb-0">
@@ -231,7 +476,9 @@ const EditInvoice = () => {
                               <td className="pe-64">Subtotal:</td>
                               <td className="pe-16">
                                 <span className="text-primary-light fw-semibold">
-                                 {formatCurrency(singleInvoice?.data?.summary?.subtotal)}
+                                  {formatCurrency(
+                                    singleInvoice?.data?.summary?.subtotal
+                                  )}
                                 </span>
                               </td>
                             </tr>
@@ -244,10 +491,14 @@ const EditInvoice = () => {
                               </td>
                             </tr>
                             <tr>
-                              <td className="pe-64 border-bottom pb-4">Tax (18%):</td>
+                              <td className="pe-64 border-bottom pb-4">
+                                Tax (18%):
+                              </td>
                               <td className="pe-16 border-bottom pb-4">
                                 <span className="text-primary-light fw-semibold">
-                                {formatCurrency(singleInvoice?.data?.summary?.tax)}
+                                  {formatCurrency(
+                                    singleInvoice?.data?.summary?.tax
+                                  )}
                                 </span>
                               </td>
                             </tr>
@@ -259,7 +510,9 @@ const EditInvoice = () => {
                               </td>
                               <td className="pe-16 pt-4">
                                 <span className="text-primary-light fw-semibold">
-                                {formatCurrency(singleInvoice?.data?.summary?.total)}
+                                  {formatCurrency(
+                                    singleInvoice?.data?.summary?.total
+                                  )}
                                 </span>
                               </td>
                             </tr>

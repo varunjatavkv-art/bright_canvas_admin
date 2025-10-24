@@ -305,7 +305,7 @@ const InvoiceList = () => {
                     {/* Actions */}
                     <td>
                       <Link
-                       
+                       to={`/invoice/invoice-preview/${invoice._id}`}
                         className="w-32-px h-32-px  me-8 bg-primary-light text-primary-600 rounded-circle d-inline-flex align-items-center justify-content-center"
                       >
                         <Icon icon="iconamoon:eye-light" />

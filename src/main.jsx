@@ -43,7 +43,7 @@ createRoot(document.getElementById("root")).render(
           <Route path="invoice" element={<Invoice />}>
             <Route index element={<InvoiceList />} />
             <Route path="invoice-add" element={<AddInvoice />} />
-            <Route path="invoice-preview" element={<InvoicePreview />} />
+            <Route path="invoice-preview/:invoiceId" element={<InvoicePreview />} />
             <Route path="invoice-edit/:invoiceId" element={<EditInvoice />} />
           </Route>
         </Route>
