@@ -48,7 +48,16 @@ const EditInvoice = () => {
   const [total, setTotal] = useState(0);
 // const [set] = useState(0);
   // --- THE FIXED, CONSOLIDATED ITEM STATE ---
-  const [invoiceItems, setInvoiceItems] = useState([]);
+
+  const createNewItem = (serial) => ({
+    id: uuidv4(), // Unique identifier for React key and state updates
+    serial: serial,
+    description: "",
+    qty: 1,
+    unit: "-1",
+    unitPrice: 0,
+  });
+  const [invoiceItems, setInvoiceItems] = useState([createNewItem(1)]);
 
 
 
@@ -148,6 +157,12 @@ const handleItemChange = (itemId, field, value) => {
     })
   );
 };
+
+const handleAddItem = () => {
+  const newSerial = invoiceItems.length + 1;
+  setInvoiceItems((prevItems) => [...prevItems, createNewItem(newSerial)]);
+};
+
   // ------------------------------------------
   // Update Handler
   // ------------------------------------------
@@ -483,7 +498,20 @@ const handleItemChange = (itemId, field, value) => {
                         </tbody>
                       </table>
                     </div>
-                    
+                    <div>
+                      <button
+                        type="button"
+                        id="addRow"
+                        className="btn btn-sm btn-primary-600 radius-8 d-inline-flex align-items-center gap-1"
+                        onClick={handleAddItem}
+                      >
+                        <Icon
+                          icon="simple-line-icons:plus"
+                          className="text-xl"
+                        />
+                        Add New
+                      </button>
+                    </div>
                    
                     {/* Summary Section */}
                     <div className="d-flex flex-wrap justify-content-between gap-3 mt-24">
