@@ -122,7 +122,6 @@ const AddInvoice = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Form submitted. Preventing page reload.");
 
     // --- Accessing All State Data ---
     const invoiceData = {
@@ -130,8 +129,8 @@ const AddInvoice = () => {
         invoiceNumber,
         orderID,
         shipmentID,
-        issueDate,
-        dueDate,
+        issueDate: new Date(issueDate).toISOString(),
+        dueDate: new Date(dueDate).toISOString(),
       },
       customer: {
         name: customerName,
@@ -146,8 +145,7 @@ const AddInvoice = () => {
         status: status
       },
     };
-
-    console.log(invoiceData);
+    
     try {
       const res = await axios.post(
         `http://localhost:8000/api/invoice`,

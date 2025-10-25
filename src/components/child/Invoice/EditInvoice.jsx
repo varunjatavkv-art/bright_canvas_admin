@@ -6,18 +6,34 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import {
   formatCurrency,
-  formatDate,
+  // Removed unused formatDate here, assuming it's used elsewhere in the file
 } from "../../../commonFunctions/common.functions";
 import LoadingComponent from "../../common/LoadingComponent";
 import NotFound from "../../common/NotFound";
 
+// Helper function to format date for HTML date input (YYYY-MM-DD)
+const formatInputDate = (isoDate) => {
+    if (!isoDate) return "";
+    try {
+        // Ensure we handle potentially null/undefined issueDate and dueDate
+        return new Date(isoDate).toISOString().substring(0, 10);
+    } catch (e) {
+        console.error("Invalid date format:", isoDate);
+        return "";
+    }
+};
+
 const EditInvoice = () => {
   const { invoiceId } = useParams();
+  const navigate = useNavigate();
+
+  // --- Core States ---
   const [singleInvoice, setSingleInvoice] = useState({});
-  const [Loading, setLoading] = useState(false);
+  // Renamed to lowercase 'loading' for convention
+  const [loading, setLoading] = useState(false); 
   const [error, setError] = useState(false);
 
-  // --- NEW STATES FOR EDITING ---
+  // --- States for Editable Fields ---
   const [customerName, setCustomerName] = useState("");
   const [customerAddress, setCustomerAddress] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
@@ -27,26 +43,18 @@ const EditInvoice = () => {
   const [invoiceNumber, setInvoiceNumber] = useState("");
   const [orderID, setOrderID] = useState("");
   const [shipmentID, setShipmentID] = useState("");
-  const [subTotal, setSubTotal] = useState("");
-  const [tax, setTax] = useState("");
-  const [total, setTotal] = useState("");
-
+  const [subTotal, setSubTotal] = useState(0); 
+  const [tax, setTax] = useState(0);
+  const [total, setTotal] = useState(0);
+// const [set] = useState(0);
+  // --- THE FIXED, CONSOLIDATED ITEM STATE ---
   const [invoiceItems, setInvoiceItems] = useState([]);
 
-  const navigate = useNavigate();
 
-  const createNewItem = (serial) => ({
-    id: uuidv4(), // Unique identifier for React key and state updates
-    serial: serial,
-    description: "",
-    qty: 1,
-    unit: "-1",
-    unitPrice: 0,
-  });
-  const [newItems, setNewItems] = useState(createNewItem(1));
 
-  console.log(newItems);
-
+  // ------------------------------------------
+  // Fetch Data and Initialize States
+  // ------------------------------------------
   useEffect(() => {
     setLoading(true);
     const fetchSingleInvoice = async () => {
@@ -54,24 +62,36 @@ const EditInvoice = () => {
         const res = await axios.get(
           "http://localhost:8000/api/invoice/single/" + invoiceId
         );
+        
         if (res.status === 200) {
-          setSingleInvoice(res?.data);
-          setNewItems(res?.data?.data?.items);
-          setCustomerName(res?.data?.data?.customer?.name);
-          setCustomerAddress(res?.data?.data?.customer?.address);
-          setCustomerPhone(res?.data?.data?.customer?.phone);
-          setStatus(res?.data?.data?.summary?.status);
-          setIssueDate(res?.data?.data?.matadata?.issueDate);
-          setDueDate(res?.data?.data?.matadata?.dueDate);
-          setInvoiceNumber(res?.data?.data?.metadata?.invoiceNumber);
-          setOrderID(res?.data?.data?.metadata?.orderID);
-          setShipmentID(res?.data?.data?.metadata?.shipmentID);
-          setSubTotal(res?.data?.data?.summary?.subTotal);
-          setTax(res?.data?.data?.summary?.tax);
-          setTotal(res?.data?.data?.summary?.total);
-          setInvoiceItems(res?.data?.data?.items)
-          // console.log(res.data.data);
+          const data = res?.data?.data;
 
+          setSingleInvoice(res?.data);
+          
+          setCustomerName(data?.customer?.name || "");
+          setCustomerAddress(data?.customer?.address || "");
+          setCustomerPhone(data?.customer?.phone || "");
+          setStatus(data?.summary?.status || "");
+          
+          // FIX: Use formatInputDate and correctly access metadata
+          setIssueDate(formatInputDate(data?.metadata?.issueDate));
+          setDueDate(formatInputDate(data?.metadata?.dueDate));
+          
+          setInvoiceNumber(data?.metadata?.invoiceNumber || "");
+          setOrderID(data?.metadata?.orderID || "");
+          setShipmentID(data?.metadata?.shipmentID || "");
+          
+          // Use default numeric values
+          setSubTotal(data?.summary?.subtotal || 0);
+          setTax(data?.summary?.tax || 0);
+          setTotal(data?.summary?.total || 0);
+          
+          // FIX: Initialize the single source of truth
+          setInvoiceItems(data?.items || []); 
+          
+          // The console log below is to show that `res.data.data.items` is available 
+          // console.log(res.data.data.items);
+          
           setLoading(false);
           setError(false);
         }
@@ -84,73 +104,78 @@ const EditInvoice = () => {
     fetchSingleInvoice();
   }, [invoiceId]);
 
+console.log(invoiceItems);
+
+  // ------------------------------------------
+  // Item Management Handlers (FIXED)
+  // ------------------------------------------
+
+  // FIX: handleRemoveRow now operates on invoiceItems
   const handleRemoveRow = (idToRemove) => {
-    setNewItems((prevItems) => {
+    setInvoiceItems((prevItems) => {
       const updatedItems = prevItems
-        .filter((item) => item.id !== idToRemove)
+        // Use the combined identifier (Mongo _id or temporary id)
+        .filter((item) => (item._id || item.id) !== idToRemove) 
         // Recalculate serial numbers
         .map((item, index) => ({ ...item, serial: index + 1 }));
       return updatedItems;
     });
   };
 
-  const handleAddItem = () => {
-    const newSerial = newItems.length + 1;
-    setNewItems((prevItems) => [...prevItems, createNewItem(newSerial)]);
-  };
+// New `handleItemChange` to handle both `id` and `_id`
+const handleItemChange = (itemId, field, value) => {
+  setInvoiceItems((prevItems) =>
+    prevItems.map((item) => {
+      // Use the database ID (_id) if present, otherwise fall back to the client ID (id)
+      const itemIdentifier = item._id || item.id; 
 
-  const handleItemChange = (itemId, field, value) => {
-    setNewItems((prevItems) =>
-      prevItems.map((item) => {
-        if (item.id === itemId) {
-          let updatedValue = value;
-
-          // Cleanup currency/format when updating number fields
-          if (field === "unitPrice") {
-            // Remove currency symbols, commas, and parse as float
-            updatedValue = parseFloat(value.replace(/[^0-9.]/g, "")) || 0;
-          } else if (field === "qty") {
-            // Ensure quantity is an integer
-            updatedValue = parseInt(value) || 0;
-          }
-
-          return {
-            ...item,
-            [field]: updatedValue,
-          };
+      if (itemIdentifier === itemId) {
+        // Convert numeric fields to numbers, handling potential NaN
+        let updatedValue = value;
+        if (field === "qty" || field === "unitPrice") {
+          // Use parseFloat to handle price (which might have decimals) and default to 0
+          updatedValue = parseFloat(value) || 0;
+          // Ensure negative numbers are not accepted for qty/price
+          updatedValue = updatedValue < 0 ? 0 : updatedValue;
         }
-        return item;
-      })
-    );
-  };
-
-  // --- NEW UPDATE HANDLER ---
+        
+        return { 
+          ...item, 
+          [field]: updatedValue 
+        };
+      }
+      return item;
+    })
+  );
+};
+  // ------------------------------------------
+  // Update Handler
+  // ------------------------------------------
   const handleInvoiceUpdate = async (e) => {
     e.preventDefault();
     setLoading(true);
 
-    // 1. Prepare the data payload (The same structure your Mongoose update expects)
     const updatedInvoice = {
-      customer: {
-        name: customerName,
-        address: customerAddress,
-        phone: customerPhone,
-      },
       metadata: {
         invoiceNumber: invoiceNumber,
         orderID: orderID,
         shipmentID: shipmentID,
         issueDate: new Date(issueDate).toISOString(),
-        deuDate: new Date(dueDate).toISOString(),
+        dueDate: new Date(dueDate).toISOString(),
       },
-      summary: {
-        status: status,
-        total:total,
-        subtotal: subTotal,
-        tax: tax
+      customer: {
+        name: customerName,
+        address: customerAddress,
+        phone: customerPhone,
       },
-      // Send the entire updated items array
+     
       items: invoiceItems,
+      summary: {
+        subtotal: subTotal,
+        total: total,
+        tax: tax,
+        status: status
+      },
     };
 
     try {
@@ -161,24 +186,10 @@ const EditInvoice = () => {
 
       if (res.status === 200) {
         alert("Invoice updated successfully!");
-        // Optionally navigate the user away or re-fetch data
-        // setSingleInvoice(res.data); // Update with fresh data from server
-        setSingleInvoice("");
-        setNewItems("");
-        setCustomerName("");
-        setCustomerAddress("");
-        setCustomerPhone("");
-        setStatus("");
-        setIssueDate("");
-        setIssueDate("");
-        setInvoiceNumber("");
-        setOrderID("");
-        setShipmentID("");
-        setSubTotal("");
-        setTax("");
-        setTotal("");
-        setInvoiceItems("");
-        navigate("/invoice");
+        // Only navigate, no need to clear all states manually
+        setInvoiceItems([]);
+        navigate("/invoice"); 
+
       }
     } catch (error) {
       console.error("Error updating invoice:", error);
@@ -189,12 +200,44 @@ const EditInvoice = () => {
     }
   };
 
-  if (Loading) {
+  useEffect(() => {
+     // Using reduce to calculate the sum of (qty * unitPrice) for all items
+     const newSubTotal = invoiceItems.reduce((sum, item) => {
+      // Ensure qty and unitPrice are treated as numbers, defaulting to 0 if invalid
+      const qty = parseFloat(item.qty) || 0;
+      const unitPrice = parseFloat(item.unitPrice) || 0;
+      
+      return sum + (qty * unitPrice);
+     }, 0);
+     
+     // Assuming a fixed 18% tax rate as indicated in the summary section
+     const TAX_RATE = 0.18; 
+     const newTax = newSubTotal * TAX_RATE;
+     
+     const newTotal = newSubTotal + newTax;
+    
+     // Update the state for subtotal, tax, and total
+     // Using Math.round and dividing by 100 to handle floating-point precision issues
+     // when dealing with currency, ensuring two decimal places.
+     setSubTotal(Math.round(newSubTotal * 100) / 100);
+     setTax(Math.round(newTax * 100) / 100);
+     setTotal(Math.round(newTotal * 100) / 100);
+    
+     }, [invoiceItems]);
+  
+  // ------------------------------------------
+  // Render Logic
+  // ------------------------------------------
+
+  if (loading) {
     return <LoadingComponent />;
   }
   if (error) {
     return <NotFound />;
   }
+  
+  const invoiceData = singleInvoice?.data;
+
   return (
     <>
       <Breadcrumb title={"Edit Invoice"} />
@@ -220,13 +263,10 @@ const EditInvoice = () => {
                   <div className="row justify-content-between g-3">
                     <div className="col-sm-4">
                       <h3 className="text-xl">
-                        Invoice #{singleInvoice?.data?.metadata.invoiceNumber}
+                        Invoice #{invoiceData?.metadata.invoiceNumber}
                       </h3>
                       <p className="mb-1 text-sm">
                         Date Issued:{" "}
-                        {/* <span className="editable text-decoration-underline">
-                          {formatDate(singleInvoice?.data?.metadata.issueDate)}
-                        </span>{" "} */}
                         <input
                           type="date"
                           id="date_issue"
@@ -248,6 +288,7 @@ const EditInvoice = () => {
                         />
                       </p>
                     </div>
+                    {/* ... (Logo and Business Info section remains the same) ... */}
                     <div className="col-sm-4">
                       <img
                         src="assets/images/logo.png"
@@ -263,8 +304,9 @@ const EditInvoice = () => {
                 </div>
                 <div className="py-28 px-20">
                   <div className="d-flex flex-wrap justify-content-between align-items-end gap-3">
+                    {/* Customer Data Section */}
                     <div>
-                      <h6 className="text-md">Issus For:</h6>
+                      <h6 className="text-md">Issue For:</h6>
                       <table className="text-sm text-secondary-light">
                         <tbody>
                           <tr>
@@ -277,11 +319,8 @@ const EditInvoice = () => {
                                 placeholder="Please enter name"
                                 required
                                 value={customerName}
-                                onChange={(e) =>
-                                  setCustomerName(e.target.value)
-                                }
+                                onChange={(e) => setCustomerName(e.target.value)}
                               />
-                              {/* <span> {singleInvoice?.data?.customer?.name}</span> */}
                             </td>
                           </tr>
                           <tr>
@@ -294,9 +333,7 @@ const EditInvoice = () => {
                                 placeholder="Please enter address"
                                 required
                                 value={customerAddress}
-                                onChange={(e) =>
-                                  setCustomerAddress(e.target.value)
-                                }
+                                onChange={(e) => setCustomerAddress(e.target.value)}
                               />
                             </td>
                           </tr>
@@ -311,15 +348,14 @@ const EditInvoice = () => {
                                 placeholder="Please enter contact"
                                 required
                                 value={customerPhone}
-                                onChange={(e) =>
-                                  setCustomerPhone(e.target.value)
-                                }
+                                onChange={(e) => setCustomerPhone(e.target.value)}
                               />
                             </td>
                           </tr>
                         </tbody>
                       </table>
                     </div>
+                    {/* Invoice Metadata Section */}
                     <div>
                       <table className="text-sm text-secondary-light">
                         <tbody>
@@ -330,7 +366,7 @@ const EditInvoice = () => {
                                 name="status"
                                 id="status"
                                 onChange={(e) => setStatus(e.target.value)}
-                                defaultValue={status}
+                                value={status}
                               >
                                 <option value="-1">Select</option>
                                 <option value="0">Pending</option>
@@ -341,19 +377,20 @@ const EditInvoice = () => {
                           <tr>
                             <td>Order ID</td>
                             <td className="ps-8">
-                              :#{singleInvoice?.data?.metadata.orderID}
+                              : #{invoiceData?.metadata.orderID}
                             </td>
                           </tr>
                           <tr>
                             <td>Shipment ID</td>
                             <td className="ps-8">
-                              :#{singleInvoice?.data?.metadata.shipmentID}
+                              : #{invoiceData?.metadata.shipmentID}
                             </td>
                           </tr>
                         </tbody>
                       </table>
                     </div>
                   </div>
+                  {/* Items Table Section */}
                   <div className="mt-24">
                     <div className="table-responsive scroll-sm">
                       <table
@@ -362,82 +399,49 @@ const EditInvoice = () => {
                       >
                         <thead>
                           <tr>
-                            <th scope="col" className="text-sm">
-                              SL.
-                            </th>
-                            <th scope="col" className="text-sm">
-                              Items
-                            </th>
-                            <th scope="col" className="text-sm">
-                              Qty
-                            </th>
-                            <th scope="col" className="text-sm">
-                              Units
-                            </th>
-                            <th scope="col" className="text-sm">
-                              Unit Price
-                            </th>
-                            <th scope="col" className="text-sm">
-                              Price
-                            </th>
-                            <th scope="col" className="text-center text-sm">
-                              Action
-                            </th>
+                            <th scope="col" className="text-sm">SL.</th>
+                            <th scope="col" className="text-sm">Items</th>
+                            <th scope="col" className="text-sm">Qty</th>
+                            <th scope="col" className="text-sm">Units</th>
+                            <th scope="col" className="text-sm">Unit Price</th>
+                            <th scope="col" className="text-sm">Price</th>
+                            <th scope="col" className="text-center text-sm">Action</th>
                           </tr>
                         </thead>
                         <tbody>
                           {invoiceItems.map((item) => {
-                            // let unit;
-                            // if (item.unit == "0") {
-                            //   unit = "PC";
-                            // } else if (item.unit == "1") {
-                            //   unit = "KG";
-                            // } else {
-                            //   unit = "HR";
-                            // }
+                            // Use the combined key for uniqueness
+                            const itemKey = item._id || item.id; 
                             return (
-                              <tr key={item.id}>
-                                <td> {String(item.serial).padStart(2, "0")}</td>
+                              <tr key={itemKey}>
+                                <td>{String(item.serial).padStart(2, "0")}</td>
                                 <td>
                                   <input
                                     type="text"
                                     placeholder="Type item name here"
                                     value={item.description}
                                     onChange={(e) =>
-                                      handleItemChange(
-                                        item.id,
-                                        "description",
-                                        e.target.value
-                                      )
+                                      handleItemChange(itemKey, "description", e.target.value)
                                     }
-                                    className="w-50 border-b border-gray-200 p-1 focus:outline-none focus:border-blue-400"
+                                    className="w-full border-b border-gray-200 p-1 focus:outline-none focus:border-blue-400"
                                   />
                                 </td>
                                 <td>
-                                  {" "}
                                   <input
                                     type="number"
                                     min="1"
                                     value={item.qty}
                                     onChange={(e) =>
-                                      handleItemChange(
-                                        item.id,
-                                        "qty",
-                                        e.target.value
-                                      )
+                                      handleItemChange(itemKey, "qty", e.target.value)
                                     }
-                                    className="w-50 text-center border-b border-gray-200 p-1 focus:outline-none focus:border-blue-400"
+                                    className="w-full text-center border-b border-gray-200 p-1 focus:outline-none focus:border-blue-400"
                                   />
                                 </td>
                                 <td>
                                   <select
                                     value={item.unit}
                                     onChange={(e) =>
-                                      handleItemChange(
-                                        item.id,
-                                        "unit",
-                                        e.target.value
-                                      )
+                                      handleItemChange(itemKey, "unit", e.target.value)
                                     }
                                     className="w-full border-b border-gray-200 p-1 focus:outline-none focus:border-blue-400"
                                   >
@@ -451,15 +455,11 @@ const EditInvoice = () => {
                                   <input
                                     type="text"
                                     placeholder="Price"
-                                    value={formatCurrency(item.unitPrice)}
+                                    value={item.unitPrice}
                                     onChange={(e) =>
-                                      handleItemChange(
-                                        item.id,
-                                        "unitPrice",
-                                        e.target.value
-                                      )
+                                      handleItemChange(itemKey, "unitPrice", e.target.value)
                                     }
-                                    className="w-50 text-center border-b border-gray-200 p-1 focus:outline-none focus:border-blue-400"
+                                    className="w-full text-center border-b border-gray-200 p-1 focus:outline-none focus:border-blue-400"
                                   />
                                 </td>
                                 <td>
@@ -468,7 +468,7 @@ const EditInvoice = () => {
                                 <td className="text-center">
                                   <button
                                     type="button"
-                                    onClick={() => handleRemoveRow(item.id)}
+                                    onClick={() => handleRemoveRow(itemKey)}
                                     className="text-red-500 hover:text-red-700 transition duration-150 p-1 rounded-full hover:bg-red-50"
                                   >
                                     <Icon
@@ -483,20 +483,9 @@ const EditInvoice = () => {
                         </tbody>
                       </table>
                     </div>
-                    <div>
-                      <button
-                        type="button"
-                        id="addRow"
-                        className="btn btn-sm btn-primary-600 radius-8 d-inline-flex align-items-center gap-1"
-                        onClick={handleAddItem}
-                      >
-                        <Icon
-                          icon="simple-line-icons:plus"
-                          className="text-xl"
-                        />
-                        Add New
-                      </button>
-                    </div>
+                    
+                   
+                    {/* Summary Section */}
                     <div className="d-flex flex-wrap justify-content-between gap-3 mt-24">
                       <div>
                         <p className="text-sm mb-0">
@@ -514,14 +503,12 @@ const EditInvoice = () => {
                               <td className="pe-64">Subtotal:</td>
                               <td className="pe-16">
                                 <span className="text-primary-light fw-semibold">
-                                  {formatCurrency(
-                                    singleInvoice?.data?.summary?.subtotal
-                                  )}
+                                  {formatCurrency(subTotal)}
                                 </span>
                               </td>
                             </tr>
                             <tr>
-                              <td className="pe-64">Discoun (0%):</td>
+                              <td className="pe-64">Discount (0%):</td>
                               <td className="pe-16">
                                 <span className="text-primary-light fw-semibold">
                                   $0.00
@@ -534,9 +521,7 @@ const EditInvoice = () => {
                               </td>
                               <td className="pe-16 border-bottom pb-4">
                                 <span className="text-primary-light fw-semibold">
-                                  {formatCurrency(
-                                    singleInvoice?.data?.summary?.tax
-                                  )}
+                                  {formatCurrency(tax)}
                                 </span>
                               </td>
                             </tr>
@@ -548,9 +533,7 @@ const EditInvoice = () => {
                               </td>
                               <td className="pe-16 pt-4">
                                 <span className="text-primary-light fw-semibold">
-                                  {formatCurrency(
-                                    singleInvoice?.data?.summary?.total
-                                  )}
+                                  {formatCurrency(total)}
                                 </span>
                               </td>
                             </tr>
@@ -559,6 +542,7 @@ const EditInvoice = () => {
                       </div>
                     </div>
                   </div>
+                  {/* Signature Section */}
                   <div className="mt-64">
                     <p className="text-center text-secondary-light text-sm fw-semibold">
                       Thank you for your purchase!
