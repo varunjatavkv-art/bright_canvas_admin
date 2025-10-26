@@ -4,6 +4,7 @@ import axios from "axios";
 import NoDataFound from "../../common/NoDataFound";
 import { Icon } from "@iconify/react";
 import NotFound from "../../common/NotFound";
+import Breadcrumb from "../../Breadcrumb";
 
 const WorkLayer = () => {
   const [work, setWork] = useState([]);
@@ -66,6 +67,9 @@ const WorkLayer = () => {
     return <NotFound />;
   }
   return (
+    <>
+    <Breadcrumb title={"Work"} />
+    
     <div className="row gy-4">
       {work?.map((data, idx) => {
         // 🚨 NEW: Use the helper function to get safe, truncated text
@@ -134,6 +138,7 @@ const WorkLayer = () => {
         );
       })}
     </div>
+    </>
   );
 };
 

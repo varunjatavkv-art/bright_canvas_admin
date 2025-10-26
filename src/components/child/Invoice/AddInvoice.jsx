@@ -3,7 +3,7 @@ import Breadcrumb from "../../Breadcrumb";
 import { v4 as uuidv4 } from "uuid";
 import { useEffect, useState, useMemo } from "react";
 import axios from "axios";
-import { formatCurrency } from "../../../commonFunctions/common.functions";
+import { formatCurrency, isNumberKey } from "../../../commonFunctions/common.functions";
 import { useNavigate } from "react-router-dom";
 
 const AddInvoice = () => {
@@ -11,17 +11,14 @@ const AddInvoice = () => {
   const [orderID, setOrderID] = useState("");
   const [shipmentID, setShipmentID] = useState("");
 
-  const [issueDate, setIssueDate] = useState();
-  const [dueDate, setDueDate] = useState();
+  const [issueDate, setIssueDate] = useState("");
+  const [dueDate, setDueDate] = useState("");
 
   const [customerName, setCustomerName] = useState("");
   const [customerAddress, setCustomerAddress] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
   const [status, setStatus] = useState("-1");
-
-
   const navigate = useNavigate();
-
   const createNewItem = (serial) => ({
     id: uuidv4(), // Unique identifier for React key and state updates
     serial: serial,
@@ -155,7 +152,6 @@ const AddInvoice = () => {
       setOrderID("");
       setShipmentID("");
       setIssueDate("");
-      // setItems("");
       setCustomerAddress("");
       setCustomerName("");
       setCustomerPhone("");
@@ -168,9 +164,28 @@ const AddInvoice = () => {
       if(res.status == 404){
         alert("Message : ", res.error);
       }
+      if(res.status == 400){
+        console.log("error 400");
+        
+        alert(res.error);
+      }
       
     } catch (error) {
-      console.error("Error in post request :", error);
+    
+     if (error.response) {
+         const status = error.response.status;
+         const errorMessage = error.response.data.error || 'An unknown error occurred.';
+
+         if (status === 400) {
+             alert(`Error: ${errorMessage}`);
+         } else if (status === 404) {
+             alert("Server Error: API endpoint not found.");
+         } else {
+             alert(`Server Error (${status}): ${errorMessage}`);
+         }
+     } else {
+         alert("Network Error: Could not connect to the server.");
+     }
     }
   };
 
@@ -288,6 +303,7 @@ const AddInvoice = () => {
                                 onChange={(e) =>
                                   setCustomerPhone(e.target.value)
                                 }
+                                onKeyDown={(evt) =>isNumberKey(evt)}
                               />
                             </td>
                           </tr>

@@ -1,3 +1,4 @@
+import Breadcrumb from "../../Breadcrumb";
 import AddWorkFrom from "./AddWorkFrom";
 import LatestWork from "./LatestWork";
 
@@ -5,6 +6,8 @@ import LatestWork from "./LatestWork";
 
 const AddBlogLayer = () => {
   return (
+    <>
+    <Breadcrumb title={"Add Work"} />
     <div className="row gy-4">
       {/* Form */}
       <AddWorkFrom/>
@@ -14,6 +17,7 @@ const AddBlogLayer = () => {
       <LatestWork />
       </div>
     </div>
+    </>
   );
 };
 

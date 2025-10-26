@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import {
   formatCurrency,
+  isNumberKey,
   // Removed unused formatDate here, assuming it's used elsewhere in the file
 } from "../../../commonFunctions/common.functions";
 import LoadingComponent from "../../common/LoadingComponent";
@@ -13,14 +14,14 @@ import NotFound from "../../common/NotFound";
 
 // Helper function to format date for HTML date input (YYYY-MM-DD)
 const formatInputDate = (isoDate) => {
-    if (!isoDate) return "";
-    try {
-        // Ensure we handle potentially null/undefined issueDate and dueDate
-        return new Date(isoDate).toISOString().substring(0, 10);
-    } catch (e) {
-        console.error("Invalid date format:", isoDate);
-        return "";
-    }
+  if (!isoDate) return "";
+  try {
+    // Ensure we handle potentially null/undefined issueDate and dueDate
+    return new Date(isoDate).toISOString().substring(0, 10);
+  } catch (e) {
+    console.error("Invalid date format:", isoDate);
+    return "";
+  }
 };
 
 const EditInvoice = () => {
@@ -30,7 +31,7 @@ const EditInvoice = () => {
   // --- Core States ---
   const [singleInvoice, setSingleInvoice] = useState({});
   // Renamed to lowercase 'loading' for convention
-  const [loading, setLoading] = useState(false); 
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
 
   // --- States for Editable Fields ---
@@ -43,10 +44,10 @@ const EditInvoice = () => {
   const [invoiceNumber, setInvoiceNumber] = useState("");
   const [orderID, setOrderID] = useState("");
   const [shipmentID, setShipmentID] = useState("");
-  const [subTotal, setSubTotal] = useState(0); 
+  const [subTotal, setSubTotal] = useState(0);
   const [tax, setTax] = useState(0);
   const [total, setTotal] = useState(0);
-// const [set] = useState(0);
+  // const [set] = useState(0);
   // --- THE FIXED, CONSOLIDATED ITEM STATE ---
 
   const createNewItem = (serial) => ({
@@ -59,8 +60,6 @@ const EditInvoice = () => {
   });
   const [invoiceItems, setInvoiceItems] = useState([createNewItem(1)]);
 
-
-
   // ------------------------------------------
   // Fetch Data and Initialize States
   // ------------------------------------------
@@ -71,36 +70,33 @@ const EditInvoice = () => {
         const res = await axios.get(
           "http://localhost:8000/api/invoice/single/" + invoiceId
         );
-        
+
         if (res.status === 200) {
           const data = res?.data?.data;
 
           setSingleInvoice(res?.data);
-          
+
           setCustomerName(data?.customer?.name || "");
           setCustomerAddress(data?.customer?.address || "");
           setCustomerPhone(data?.customer?.phone || "");
           setStatus(data?.summary?.status || "");
-          
+
           // FIX: Use formatInputDate and correctly access metadata
           setIssueDate(formatInputDate(data?.metadata?.issueDate));
           setDueDate(formatInputDate(data?.metadata?.dueDate));
-          
+
           setInvoiceNumber(data?.metadata?.invoiceNumber || "");
           setOrderID(data?.metadata?.orderID || "");
           setShipmentID(data?.metadata?.shipmentID || "");
-          
+
           // Use default numeric values
           setSubTotal(data?.summary?.subtotal || 0);
           setTax(data?.summary?.tax || 0);
           setTotal(data?.summary?.total || 0);
-          
+
           // FIX: Initialize the single source of truth
-          setInvoiceItems(data?.items || []); 
-          
-          // The console log below is to show that `res.data.data.items` is available 
-          // console.log(res.data.data.items);
-          
+          setInvoiceItems(data?.items || []);
+
           setLoading(false);
           setError(false);
         }
@@ -113,59 +109,50 @@ const EditInvoice = () => {
     fetchSingleInvoice();
   }, [invoiceId]);
 
-console.log(invoiceItems);
-
-  // ------------------------------------------
-  // Item Management Handlers (FIXED)
-  // ------------------------------------------
-
-  // FIX: handleRemoveRow now operates on invoiceItems
+ 
   const handleRemoveRow = (idToRemove) => {
     setInvoiceItems((prevItems) => {
       const updatedItems = prevItems
         // Use the combined identifier (Mongo _id or temporary id)
-        .filter((item) => (item._id || item.id) !== idToRemove) 
+        .filter((item) => (item._id || item.id) !== idToRemove)
         // Recalculate serial numbers
         .map((item, index) => ({ ...item, serial: index + 1 }));
       return updatedItems;
     });
   };
 
-// New `handleItemChange` to handle both `id` and `_id`
-const handleItemChange = (itemId, field, value) => {
-  setInvoiceItems((prevItems) =>
-    prevItems.map((item) => {
-      // Use the database ID (_id) if present, otherwise fall back to the client ID (id)
-      const itemIdentifier = item._id || item.id; 
+  // New `handleItemChange` to handle both `id` and `_id`
+  const handleItemChange = (itemId, field, value) => {
+    setInvoiceItems((prevItems) =>
+      prevItems.map((item) => {
+        // Use the database ID (_id) if present, otherwise fall back to the client ID (id)
+        const itemIdentifier = item._id || item.id;
 
-      if (itemIdentifier === itemId) {
-        // Convert numeric fields to numbers, handling potential NaN
-        let updatedValue = value;
-        if (field === "qty" || field === "unitPrice") {
-          // Use parseFloat to handle price (which might have decimals) and default to 0
-          updatedValue = parseFloat(value) || 0;
-          // Ensure negative numbers are not accepted for qty/price
-          updatedValue = updatedValue < 0 ? 0 : updatedValue;
+        if (itemIdentifier === itemId) {
+          // Convert numeric fields to numbers, handling potential NaN
+          let updatedValue = value;
+          if (field === "qty" || field === "unitPrice") {
+            // Use parseFloat to handle price (which might have decimals) and default to 0
+            updatedValue = parseFloat(value) || 0;
+            // Ensure negative numbers are not accepted for qty/price
+            updatedValue = updatedValue < 0 ? 0 : updatedValue;
+          }
+
+          return {
+            ...item,
+            [field]: updatedValue,
+          };
         }
-        
-        return { 
-          ...item, 
-          [field]: updatedValue 
-        };
-      }
-      return item;
-    })
-  );
-};
+        return item;
+      })
+    );
+  };
 
-const handleAddItem = () => {
-  const newSerial = invoiceItems.length + 1;
-  setInvoiceItems((prevItems) => [...prevItems, createNewItem(newSerial)]);
-};
+  const handleAddItem = () => {
+    const newSerial = invoiceItems.length + 1;
+    setInvoiceItems((prevItems) => [...prevItems, createNewItem(newSerial)]);
+  };
 
-  // ------------------------------------------
-  // Update Handler
-  // ------------------------------------------
   const handleInvoiceUpdate = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -183,13 +170,13 @@ const handleAddItem = () => {
         address: customerAddress,
         phone: customerPhone,
       },
-     
+
       items: invoiceItems,
       summary: {
         subtotal: subTotal,
         total: total,
         tax: tax,
-        status: status
+        status: status,
       },
     };
 
@@ -201,10 +188,8 @@ const handleAddItem = () => {
 
       if (res.status === 200) {
         alert("Invoice updated successfully!");
-        // Only navigate, no need to clear all states manually
         setInvoiceItems([]);
-        navigate("/invoice"); 
-
+        navigate("/invoice");
       }
     } catch (error) {
       console.error("Error updating invoice:", error);
@@ -216,33 +201,18 @@ const handleAddItem = () => {
   };
 
   useEffect(() => {
-     // Using reduce to calculate the sum of (qty * unitPrice) for all items
-     const newSubTotal = invoiceItems.reduce((sum, item) => {
-      // Ensure qty and unitPrice are treated as numbers, defaulting to 0 if invalid
+    const newSubTotal = invoiceItems.reduce((sum, item) => {
       const qty = parseFloat(item.qty) || 0;
       const unitPrice = parseFloat(item.unitPrice) || 0;
-      
-      return sum + (qty * unitPrice);
-     }, 0);
-     
-     // Assuming a fixed 18% tax rate as indicated in the summary section
-     const TAX_RATE = 0.18; 
-     const newTax = newSubTotal * TAX_RATE;
-     
-     const newTotal = newSubTotal + newTax;
-    
-     // Update the state for subtotal, tax, and total
-     // Using Math.round and dividing by 100 to handle floating-point precision issues
-     // when dealing with currency, ensuring two decimal places.
-     setSubTotal(Math.round(newSubTotal * 100) / 100);
-     setTax(Math.round(newTax * 100) / 100);
-     setTotal(Math.round(newTotal * 100) / 100);
-    
-     }, [invoiceItems]);
-  
-  // ------------------------------------------
-  // Render Logic
-  // ------------------------------------------
+      return sum + qty * unitPrice;
+    }, 0);
+    const TAX_RATE = 0.18;
+    const newTax = newSubTotal * TAX_RATE;
+    const newTotal = newSubTotal + newTax;
+    setSubTotal(Math.round(newSubTotal * 100) / 100);
+    setTax(Math.round(newTax * 100) / 100);
+    setTotal(Math.round(newTotal * 100) / 100);
+  }, [invoiceItems]);
 
   if (loading) {
     return <LoadingComponent />;
@@ -250,7 +220,7 @@ const handleAddItem = () => {
   if (error) {
     return <NotFound />;
   }
-  
+
   const invoiceData = singleInvoice?.data;
 
   return (
@@ -334,7 +304,9 @@ const handleAddItem = () => {
                                 placeholder="Please enter name"
                                 required
                                 value={customerName}
-                                onChange={(e) => setCustomerName(e.target.value)}
+                                onChange={(e) =>
+                                  setCustomerName(e.target.value)
+                                }
                               />
                             </td>
                           </tr>
@@ -348,7 +320,9 @@ const handleAddItem = () => {
                                 placeholder="Please enter address"
                                 required
                                 value={customerAddress}
-                                onChange={(e) => setCustomerAddress(e.target.value)}
+                                onChange={(e) =>
+                                  setCustomerAddress(e.target.value)
+                                }
                               />
                             </td>
                           </tr>
@@ -363,7 +337,10 @@ const handleAddItem = () => {
                                 placeholder="Please enter contact"
                                 required
                                 value={customerPhone}
-                                onChange={(e) => setCustomerPhone(e.target.value)}
+                                onChange={(e) =>
+                                  setCustomerPhone(e.target.value)
+                                }
+                                onKeyDown={(evt) => isNumberKey(evt)}
                               />
                             </td>
                           </tr>
@@ -414,19 +391,33 @@ const handleAddItem = () => {
                       >
                         <thead>
                           <tr>
-                            <th scope="col" className="text-sm">SL.</th>
-                            <th scope="col" className="text-sm">Items</th>
-                            <th scope="col" className="text-sm">Qty</th>
-                            <th scope="col" className="text-sm">Units</th>
-                            <th scope="col" className="text-sm">Unit Price</th>
-                            <th scope="col" className="text-sm">Price</th>
-                            <th scope="col" className="text-center text-sm">Action</th>
+                            <th scope="col" className="text-sm">
+                              SL.
+                            </th>
+                            <th scope="col" className="text-sm">
+                              Items
+                            </th>
+                            <th scope="col" className="text-sm">
+                              Qty
+                            </th>
+                            <th scope="col" className="text-sm">
+                              Units
+                            </th>
+                            <th scope="col" className="text-sm">
+                              Unit Price
+                            </th>
+                            <th scope="col" className="text-sm">
+                              Price
+                            </th>
+                            <th scope="col" className="text-center text-sm">
+                              Action
+                            </th>
                           </tr>
                         </thead>
                         <tbody>
                           {invoiceItems.map((item) => {
                             // Use the combined key for uniqueness
-                            const itemKey = item._id || item.id; 
+                            const itemKey = item._id || item.id;
                             return (
                               <tr key={itemKey}>
                                 <td>{String(item.serial).padStart(2, "0")}</td>
@@ -436,7 +427,11 @@ const handleAddItem = () => {
                                     placeholder="Type item name here"
                                     value={item.description}
                                     onChange={(e) =>
-                                      handleItemChange(itemKey, "description", e.target.value)
+                                      handleItemChange(
+                                        itemKey,
+                                        "description",
+                                        e.target.value
+                                      )
                                     }
                                     className="w-full border-b border-gray-200 p-1 focus:outline-none focus:border-blue-400"
                                   />
@@ -447,7 +442,11 @@ const handleAddItem = () => {
                                     min="1"
                                     value={item.qty}
                                     onChange={(e) =>
-                                      handleItemChange(itemKey, "qty", e.target.value)
+                                      handleItemChange(
+                                        itemKey,
+                                        "qty",
+                                        e.target.value
+                                      )
                                     }
                                     className="w-full text-center border-b border-gray-200 p-1 focus:outline-none focus:border-blue-400"
                                   />
@@ -456,7 +455,11 @@ const handleAddItem = () => {
                                   <select
                                     value={item.unit}
                                     onChange={(e) =>
-                                      handleItemChange(itemKey, "unit", e.target.value)
+                                      handleItemChange(
+                                        itemKey,
+                                        "unit",
+                                        e.target.value
+                                      )
                                     }
                                     className="w-full border-b border-gray-200 p-1 focus:outline-none focus:border-blue-400"
                                   >
@@ -472,7 +475,11 @@ const handleAddItem = () => {
                                     placeholder="Price"
                                     value={item.unitPrice}
                                     onChange={(e) =>
-                                      handleItemChange(itemKey, "unitPrice", e.target.value)
+                                      handleItemChange(
+                                        itemKey,
+                                        "unitPrice",
+                                        e.target.value
+                                      )
                                     }
                                     className="w-full text-center border-b border-gray-200 p-1 focus:outline-none focus:border-blue-400"
                                   />
@@ -512,7 +519,7 @@ const handleAddItem = () => {
                         Add New
                       </button>
                     </div>
-                   
+
                     {/* Summary Section */}
                     <div className="d-flex flex-wrap justify-content-between gap-3 mt-24">
                       <div>
