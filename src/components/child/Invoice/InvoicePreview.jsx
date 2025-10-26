@@ -45,34 +45,40 @@ const InvoicePreview = () => {
     <div className='card'>
       <div className='card-header'>
         <div className='d-flex flex-wrap align-items-center justify-content-end gap-2'>
-          <Link
-            to='#'
-            className='btn btn-sm btn-primary-600 radius-8 d-inline-flex align-items-center gap-1'
-          >
-            <Icon icon='pepicons-pencil:paper-plane' className='text-xl' />
-            Send Invoice
-          </Link>
-          <Link
-            to='#'
+        <a
+    href={`https://wa.me/${singleInvoice?.data?.customer?.phone}?text=${encodeURIComponent(
+        `Hello ${singleInvoice?.data?.customer?.name},\n\nYour Invoice is ready! You can view and download it here: http://localhost:8000/invoice_pdf/invoice_${singleInvoice?.data?.metadata?.invoiceNumber}.pdf`
+    )}`}
+    target="_blank"
+    rel="noopener noreferrer"
+    className='btn btn-sm btn-success radius-8 d-inline-flex align-items-center gap-1 ms-2'
+>
+    <Icon icon='cib:whatsapp' className='text-xl' />
+    Send via WhatsApp
+</a>
+          <a
+            href={`http://localhost:8000/api/invoice/download/invoice_${singleInvoice?.data?.metadata?.invoiceNumber}.pdf`} download
             className='btn btn-sm btn-warning radius-8 d-inline-flex align-items-center gap-1'
           >
             <Icon icon='solar:download-linear' className='text-xl' />
             Download
-          </Link>
+          </a>
           <Link
-            to='#'
+            to={ `/invoice/invoice-edit/${invoiceId}`}
             className='btn btn-sm btn-success radius-8 d-inline-flex align-items-center gap-1'
           >
             <Icon icon='uil:edit' className='text-xl' />
             Edit
           </Link>
-          <button
-            type='button'
+          <a
+           href={`http://localhost:8000/invoice_pdf/invoice_${singleInvoice?.data?.metadata?.invoiceNumber}.pdf`}
+           target="_blank"
+           rel="noopener noreferrer"
             className='btn btn-sm btn-danger radius-8 d-inline-flex align-items-center gap-1'
           >
             <Icon icon='basil:printer-outline' className='text-xl' />
             Print
-          </button>
+          </a>
         </div>
       </div>
       <div className="card-body py-40">
