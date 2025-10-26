@@ -223,17 +223,7 @@ const MasterLayout = () => {
                     List
                   </Link>
                 </li>
-                <li>
-                  <Link
-                    to="/invoice/invoice-preview"
-                    className={
-                      pathname === "/invoice/invoice-preview" ? "active-page" : ""
-                    }
-                  >
-                    <i className="ri-circle-fill circle-icon text-warning-main w-auto" />
-                    Preview
-                  </Link>
-                </li>
+               
                 <li>
                   <Link
                     to="/invoice/invoice-add"

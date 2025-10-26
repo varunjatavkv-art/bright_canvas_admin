@@ -4,7 +4,7 @@ import Breadcrumb from "../../Breadcrumb";
 import { useEffect, useState } from "react";
 import LoadingComponent from "../../common/LoadingComponent";
 import axios from "axios";
-import { formatCurrency } from "../../../commonFunctions/common.functions";
+import { formatCurrency, formatDate } from "../../../commonFunctions/common.functions";
 
 const InvoicePreview = () => {
   const { invoiceId } = useParams();
