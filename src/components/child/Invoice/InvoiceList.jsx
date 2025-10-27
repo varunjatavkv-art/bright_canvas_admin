@@ -106,7 +106,9 @@ const InvoiceList = () => {
 
   const handleDelete = async (id) => {
     try {
-      const res = await axios.delete(`http://localhost:8000/api/invoice/delete/${id}`);
+      const res = await axios.delete(
+        `http://localhost:8000/api/invoice/delete/${id}`
+      );
       if (res.status == 200) {
         alert(res.data.message);
         setInvoiceList((prevInvoice) => {
@@ -134,11 +136,7 @@ const InvoiceList = () => {
       setError(true);
     }
   };
-  if (invoiceList?.totalItems == 0) {
-    return (
-      <EmptyData message="Invoice List is Empty !! Please create some invoices" />
-    );
-  }
+
   if (Loading) {
     return <LoadingComponent />;
   }
@@ -222,114 +220,130 @@ const InvoiceList = () => {
                 <th scope="col">Action</th>
               </tr>
             </thead>
-            <tbody>
-              {invoiceList.data?.map((invoice, idx) => {
-                // Safely access the first item's serial number for the list index column
-                const serialNumber = idx + 1;
+            
+              <tbody>
+                {/* if (invoiceList?.totalItems == 0) {
+   
+  } */}
+                 {invoiceList.totalItems > 0 ? invoiceList.data?.map((invoice, idx) => {
+                  // Safely access the first item's serial number for the list index column
+                  const serialNumber = idx + 1;
 
-                return (
-                  <tr
-                    key={invoice._id}
-                    className="hover:bg-indigo-50 transition duration-150"
-                  >
-                    {/* # (Serial) */}
-                    <td>
-                      <div className="form-check style-check d-flex align-items-center">
-                        <input
-                          className="form-check-input"
-                          type="checkbox"
-                          defaultValue=""
-                          id="check1"
-                        />
+                  return (
+                    <tr
+                      key={invoice._id}
+                      className="hover:bg-indigo-50 transition duration-150"
+                    >
+                      {/* # (Serial) */}
+                      <td>
+                        <div className="form-check style-check d-flex align-items-center">
+                          <input
+                            className="form-check-input"
+                            type="checkbox"
+                            defaultValue=""
+                            id="check1"
+                          />
 
-                        <label className="form-check-label" htmlFor="check1">
-                          {serialNumber}
-                        </label>
-                      </div>
-                    </td>
+                          <label className="form-check-label" htmlFor="check1">
+                            {serialNumber}
+                          </label>
+                        </div>
+                      </td>
 
-                    {/* Invoice ID */}
-                    <td className="py-4 px-6 whitespace-nowrap text-sm">
-                      <a
-                        href="#"
-                        className="text-indigo-600 hover:text-indigo-800 font-semibold transition"
-                        // Use metadata.invoiceNumber
-                      >
-                        #{invoice.metadata?.invoiceNumber || "N/A"}
-                      </a>
-                    </td>
+                      {/* Invoice ID */}
+                      <td className="py-4 px-6 whitespace-nowrap text-sm">
+                        <a
+                          href="#"
+                          className="text-indigo-600 hover:text-indigo-800 font-semibold transition"
+                          // Use metadata.invoiceNumber
+                        >
+                          #{invoice.metadata?.invoiceNumber || "N/A"}
+                        </a>
+                      </td>
 
-                    {/* Customer Name */}
-                    <td className="py-4 px-6 whitespace-nowrap text-sm">
-                      <div className="flex items-center">
-                        <img
-                          // Placeholder image from placehold.co
-                          src={`https://placehold.co/32x32/6366f1/ffffff?text=${
-                            invoice.customer?.name?.[0] || "U"
-                          }`}
-                          alt={`Avatar for ${invoice.customer?.name || "User"}`}
-                          className="flex-shrink-0 w-8 h-8 rounded-full mr-3 border border-indigo-200"
-                        />
-                        <span className="font-medium text-gray-700 px-4">
-                          {/* Use customer.name */}
-                          {invoice.customer?.name || "Unknown Customer"}
+                      {/* Customer Name */}
+                      <td className="py-4 px-6 whitespace-nowrap text-sm">
+                        <div className="flex items-center">
+                          <img
+                            // Placeholder image from placehold.co
+                            src={`https://placehold.co/32x32/6366f1/ffffff?text=${
+                              invoice.customer?.name?.[0] || "U"
+                            }`}
+                            alt={`Avatar for ${
+                              invoice.customer?.name || "User"
+                            }`}
+                            className="flex-shrink-0 w-8 h-8 rounded-full mr-3 border border-indigo-200"
+                          />
+                          <span className="font-medium text-gray-700 px-4">
+                            {/* Use customer.name */}
+                            {invoice.customer?.name || "Unknown Customer"}
+                          </span>
+                        </div>
+                      </td>
+
+                      {/* Date Issued (metadata.issueDate) */}
+                      <td className="py-4 px-6 whitespace-nowrap text-sm text-gray-500">
+                        {/* Use formatDate utility */}
+                        {formatDate(invoice.metadata?.issueDate)}
+                      </td>
+
+                      {/* Total Amount (summary.total) */}
+                      <td className="py-4 px-6 whitespace-nowrap text-sm font-bold text-gray-900">
+                        {/* Use formatCurrency utility */}
+                        {formatCurrency(invoice.summary?.total)}
+                      </td>
+
+                      {/* Status (Hardcoded as Paid based on original JSX) */}
+                      <td className="py-4 px-6 whitespace-nowrap">
+                        <span
+                          className={
+                            invoice.summary?.status === "0"
+                              ? ` bg-warning-focus text-warning-main px-24 py-4 rounded-pill fw-medium text-sm`
+                              : `bg-success-focus text-red-main px-24 py-4 rounded-pill fw-medium text-sm`
+                          }
+                        >
+                          {invoice.summary?.status === "0" ? "Pending" : "Paid"}
+                          {/* Paid */}
                         </span>
-                      </div>
-                    </td>
+                      </td>
 
-                    {/* Date Issued (metadata.issueDate) */}
-                    <td className="py-4 px-6 whitespace-nowrap text-sm text-gray-500">
-                      {/* Use formatDate utility */}
-                      {formatDate(invoice.metadata?.issueDate)}
-                    </td>
+                      {/* Actions */}
+                      <td>
+                        <Link
+                          to={`/invoice/invoice-preview/${invoice._id}`}
+                          className="w-32-px h-32-px  me-8 bg-primary-light text-primary-600 rounded-circle d-inline-flex align-items-center justify-content-center"
+                        >
+                          <Icon icon="iconamoon:eye-light" />
+                        </Link>
 
-                    {/* Total Amount (summary.total) */}
-                    <td className="py-4 px-6 whitespace-nowrap text-sm font-bold text-gray-900">
-                      {/* Use formatCurrency utility */}
-                      {formatCurrency(invoice.summary?.total)}
-                    </td>
+                        <Link
+                          to={`/invoice/invoice-edit/${invoice._id}`}
+                          className="w-32-px h-32-px  me-8 bg-success-focus text-success-main rounded-circle d-inline-flex align-items-center justify-content-center"
+                        >
+                          <Icon icon="lucide:edit" />
+                        </Link>
 
-                    {/* Status (Hardcoded as Paid based on original JSX) */}
-                    <td className="py-4 px-6 whitespace-nowrap">
-                      <span
-                        className={
-                          invoice.summary?.status === "0"
-                            ? ` bg-warning-focus text-warning-main px-24 py-4 rounded-pill fw-medium text-sm`
-                            : `bg-success-focus text-red-main px-24 py-4 rounded-pill fw-medium text-sm`
-                        }
-                      >
-                        {invoice.summary?.status === "0" ? "Pending" : "Paid"}
-                        {/* Paid */}
-                      </span>
-                    </td>
-
-                    {/* Actions */}
-                    <td>
-                      <Link
-                       to={`/invoice/invoice-preview/${invoice._id}`}
-                        className="w-32-px h-32-px  me-8 bg-primary-light text-primary-600 rounded-circle d-inline-flex align-items-center justify-content-center"
-                      >
-                        <Icon icon="iconamoon:eye-light" />
-                      </Link>
-
-                      <Link
-                         to={`/invoice/invoice-edit/${invoice._id}`}
-                        className="w-32-px h-32-px  me-8 bg-success-focus text-success-main rounded-circle d-inline-flex align-items-center justify-content-center"
-                      >
-                        <Icon icon="lucide:edit" />
-                      </Link>
-
-                      <button
-                        onClick={() => handleDelete(invoice._id)}
-                        className="w-32-px h-32-px  me-8 bg-danger-focus text-danger-main rounded-circle d-inline-flex align-items-center justify-content-center"
-                      >
-                        <Icon icon="mingcute:delete-2-line" />
-                      </button>
+                        <button
+                          onClick={() => handleDelete(invoice._id)}
+                          className="w-32-px h-32-px  me-8 bg-danger-focus text-danger-main rounded-circle d-inline-flex align-items-center justify-content-center"
+                        >
+                          <Icon icon="mingcute:delete-2-line" />
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                }): (
+                  <tr>
+                    <td
+                      colSpan={7}
+                      className="text-sm text-center py-4 font-bold text-gray-900"
+                    >
+                      Invoice List is Empty !! Please create some invoices
                     </td>
                   </tr>
-                );
-              })}
-            </tbody>
+                )}
+              </tbody>
+             
           </table>
           {/* <div className="d-flex flex-wrap align-items-center justify-content-between gap-2 mt-24">
             <span>Showing {startItem} to {endItem} of {totalItems} entries</span> */}
