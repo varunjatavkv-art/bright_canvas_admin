@@ -23,6 +23,7 @@ import AddInvoice from "./components/child/Invoice/AddInvoice.jsx";
 import InvoiceList from "./components/child/Invoice/InvoiceList.jsx";
 import InvoicePreview from "./components/child/Invoice/InvoicePreview.jsx";
 import EditInvoice from "./components/child/Invoice/EditInvoice.jsx";
+import NotFound from "./components/common/NotFound.jsx";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
@@ -46,6 +47,7 @@ createRoot(document.getElementById("root")).render(
             <Route path="invoice-preview/:invoiceId" element={<InvoicePreview />} />
             <Route path="invoice-edit/:invoiceId" element={<EditInvoice />} />
           </Route>
+          <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>
     </BrowserRouter>
