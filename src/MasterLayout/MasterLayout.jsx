@@ -117,17 +117,17 @@ const MasterLayout = () => {
         <div>
           <Link href="/" className="sidebar-logo">
             <img
-              src="../assets/images/logo.png"
+              src="../assets/images/logo/Bright_Canvas_logo.webp"
               alt="site logo"
               className="light-logo"
             />
             <img
-              src="../assets/images/logo-light.png"
+                 src="../assets/images/logo/Bright_Canvas_logo.webp"
               alt="site logo"
               className="dark-logo"
             />
             <img
-              src="../assets/images/logo-icon.png"
+                 src="../assets/images/logo/Bright_Canvas_logo.webp"
               alt="site logo"
               className="logo-icon"
             />

@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import NoDataFound from "../../common/NoDataFound";
 import Breadcrumb from "../../Breadcrumb";
+import NotFound from "../../common/NotFound";
 
 const BlogLayer = () => {
   const [blog, setBlog] = useState([]);

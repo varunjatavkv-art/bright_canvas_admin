@@ -190,6 +190,7 @@ const InvoiceList = () => {
               </option>
               <option value="0">Pending</option>
               <option value="1">Paid</option>
+              <option value="2">All</option>
             </select>
             <Link to="invoice-add" className="btn btn-sm btn-primary-600">
               <i className="ri-add-line" /> Create Invoice
