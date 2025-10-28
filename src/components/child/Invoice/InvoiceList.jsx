@@ -32,7 +32,7 @@ const InvoiceList = () => {
     const fetchInvoices = async () => {
       try {
         const res = await axios.get(
-          `http://localhost:8000/api/invoice?page=${currentPage}&limit=${limit}&search=${search}&status=${status}`
+          import.meta.env.VITE_API + `api/invoice?page=${currentPage}&limit=${limit}&search=${search}&status=${status}`
         );
         setInvoiceList(res.data);
         setLoading(false);
@@ -107,7 +107,7 @@ const InvoiceList = () => {
   const handleDelete = async (id) => {
     try {
       const res = await axios.delete(
-        `http://localhost:8000/api/invoice/delete/${id}`
+        import.meta.env.VITE_API + `api/invoice/delete/${id}`
       );
       if (res.status == 200) {
         alert(res.data.message);

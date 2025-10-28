@@ -17,7 +17,7 @@ const InvoicePreview = () => {
     const fetchSingleInvoice = async () => {
       try {
         const res = await axios.get(
-          "http://localhost:8000/api/invoice/single/" + invoiceId
+          import.meta.env.VITE_API + "api/invoice/single/" + invoiceId
         );
         if (res.status === 200) {
           setSingleInvoice(res.data);
@@ -47,7 +47,7 @@ const InvoicePreview = () => {
         <div className='d-flex flex-wrap align-items-center justify-content-end gap-2'>
         <a
     href={`https://wa.me/${singleInvoice?.data?.customer?.phone}?text=${encodeURIComponent(
-        `Hello ${singleInvoice?.data?.customer?.name},\n\nYour Invoice is ready! You can view and download it here: http://localhost:8000/invoice_pdf/invoice_${singleInvoice?.data?.metadata?.invoiceNumber}.pdf`
+        `Hello ${singleInvoice?.data?.customer?.name},\n\nYour Invoice is ready! You can view and download it here:${import.meta.env.VITE_API}/invoice_pdf/invoice_${singleInvoice?.data?.metadata?.invoiceNumber}.pdf`
     )}`}
     target="_blank"
     rel="noopener noreferrer"
@@ -57,7 +57,7 @@ const InvoicePreview = () => {
     Send via WhatsApp
 </a>
           <a
-            href={`http://localhost:8000/api/invoice/download/invoice_${singleInvoice?.data?.metadata?.invoiceNumber}.pdf`} download
+            href={import.meta.env.VITE_API + `api/invoice/download/invoice_${singleInvoice?.data?.metadata?.invoiceNumber}.pdf`} download
             className='btn btn-sm btn-warning radius-8 d-inline-flex align-items-center gap-1'
           >
             <Icon icon='solar:download-linear' className='text-xl' />
@@ -71,7 +71,7 @@ const InvoicePreview = () => {
             Edit
           </Link>
           <a
-           href={`http://localhost:8000/invoice_pdf/invoice_${singleInvoice?.data?.metadata?.invoiceNumber}.pdf`}
+           href={import.meta.env.VITE_API + `invoice_pdf/invoice_${singleInvoice?.data?.metadata?.invoiceNumber}.pdf`}
            target="_blank"
            rel="noopener noreferrer"
             className='btn btn-sm btn-danger radius-8 d-inline-flex align-items-center gap-1'

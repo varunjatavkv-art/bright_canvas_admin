@@ -14,7 +14,7 @@ const LatestBlogs = () => {
     // ... fetchBlogs function remains the same ...
     const fetchBlogs = async () => {
       try {
-        const res = await axios.get("http://localhost:8000/api/blogs");
+        const res = await axios.get(import.meta.env.VITE_API + "api/blogs");
         setBlog(res.data.data.slice(0,7));
       } catch (error) {
         console.log("error is fetching blogs", error);
@@ -40,7 +40,7 @@ const LatestBlogs = () => {
 
               const imgSrc = data.image_path?.startsWith("http")
                 ? data.image_path
-                : `http://localhost:8000/${data.image_path}`;
+                : import.meta.env.VITE_API + `/${data.image_path}`;
                
               return (
                 <div className="d-flex flex-wrap" key={idx}>

@@ -220,7 +220,7 @@ const AddBlogForm = () => {
     formData.append("service", serviceHtml);
     if (imageFile) formData.append("image", imageFile);
     try {
-      const res = await axios.post("http://localhost:8000/api/work", formData);
+      const res = await axios.post(import.meta.env.VITE_API + "api/work", formData);
       console.log(res);
       if (res.status === 201) {
         alert("Work created successfully!");

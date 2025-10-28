@@ -68,7 +68,7 @@ const EditInvoice = () => {
     const fetchSingleInvoice = async () => {
       try {
         const res = await axios.get(
-          "http://localhost:8000/api/invoice/single/" + invoiceId
+          import.meta.env.VITE_API + "api/invoice/single/" + invoiceId
         );
 
         if (res.status === 200) {
@@ -182,7 +182,7 @@ const EditInvoice = () => {
 
     try {
       const res = await axios.put(
-        `http://localhost:8000/api/invoice/update/${invoiceId}`,
+        import.meta.env.VITE_API + `api/invoice/update/${invoiceId}`,
         updatedInvoice
       );
 

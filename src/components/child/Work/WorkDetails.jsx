@@ -16,7 +16,7 @@ const WorkDetails = () => {
     // ... fetchBlogs function remains the same ...
     const fetchWork = async () => {
       try {
-        const res = await axios.get("http://localhost:8000/api/work");
+        const res = await axios.get(import.meta.env.VITE_API + "api/work");
         setWork(res.data.data);
       } catch (error) {
         console.log("error is fetching work", error);
@@ -29,7 +29,7 @@ const WorkDetails = () => {
     const fetchSingleWork = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:8000/api/work/${workId}`
+          import.meta.env.VITE_API + `api/work/${workId}`
         );
         setSingleWork(response.data);
       } catch (error) {
@@ -49,18 +49,18 @@ const WorkDetails = () => {
             <img
                src={singleWork.image_path?.startsWith("http")
                         ? singleWork.image_path
-                        : `http://localhost:8000/${singleWork.image_path}`}
+                        : import.meta.env.VITE_API + `/${singleWork.image_path}`}
               alt=""
               className="w-100 h-100 object-fit-cover"
             />
-           { console.log(`http://localhost:8000/${singleWork.image_path}`)}
+           { console.log(import.meta.env.VITE_API + `/${singleWork.image_path}`)}
             <div className="p-32">
               <div className="d-flex align-items-center gap-16 justify-content-between flex-wrap mb-24">
                 <div className="d-flex align-items-center gap-8">
                   <img
                     src={singleWork.image_path?.startsWith("http")
                         ? singleWork.image_path
-                        : `http://localhost:8000/${singleWork.image_path}`
+                        : import.meta.env.VITE_API + `/${singleWork.image_path}`
                     }
                     alt=""
                     className="w-48-px h-48-px rounded-circle object-fit-cover"

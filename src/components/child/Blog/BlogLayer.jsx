@@ -22,7 +22,7 @@ const BlogLayer = () => {
       setLoading(true);
       try {
         const res = await axios.get(
-          `http://localhost:8000/api/blogs?page=${page}&limit=${limit}`
+          import.meta.env.VITE_API + `api/blogs?page=${page}&limit=${limit}`
         );
         if (res.data.data) {
           setLoading(false);
@@ -67,7 +67,7 @@ const BlogLayer = () => {
 
   const deletePost = async (id) => {
     try {
-      let res = await axios.delete("http://localhost:8000/api/blogs/" + id);
+      let res = await axios.delete(import.meta.env.VITE_API + "api/blogs/" + id);
       if (res.status == 200) {
         alert(res.data.message);
         setBlog((prevBlog) => prevBlog.filter((post) => post._id !== id));
@@ -106,7 +106,7 @@ const BlogLayer = () => {
                       src={
                         data.image_path?.startsWith("http")
                           ? data.image_path
-                          : `http://localhost:8000/${data.image_path}`
+                          : import.meta.env.VITE_API + `${data.image_path}`
                       }
                       alt={data.title}
                       className="w-100 h-100 object-fit-cover"

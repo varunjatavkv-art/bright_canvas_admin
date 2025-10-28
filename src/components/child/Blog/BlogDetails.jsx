@@ -14,7 +14,7 @@ const BlogDetailsLayer = () => {
   useEffect(() => {
     const fetchBlogs = async () => {
       try {
-        const res = await axios.get("http://localhost:8000/api/blogs");
+        const res = await axios.get(import.meta.env.VITE_API + "api/blogs");
         setBlog(res.data.data);
       } catch (error) {
         console.log("error is fetching blogs", error);
@@ -28,7 +28,7 @@ const BlogDetailsLayer = () => {
     const fetchSingleBlog = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:8000/api/blogs/${blogId}`
+          import.meta.env.VITE_API+ `api/blogs/${blogId}`
         );
         setSingleBlog(response.data);
       } catch (error) {
@@ -50,7 +50,7 @@ const BlogDetailsLayer = () => {
               src={
                 singleBlog.image_path?.startsWith("http")
                   ? singleBlog.image_path
-                  : `http://localhost:8000/${singleBlog.image_path}`
+                  : import.meta.env.VITE_API+`${singleBlog.image_path}`
               }
               alt=""
               className="w-100 h-100 object-fit-cover"
@@ -62,7 +62,7 @@ const BlogDetailsLayer = () => {
                     src={
                       singleBlog.image_path?.startsWith("http")
                         ? singleBlog.image_path
-                        : `http://localhost:8000/${singleBlog.image_path}`
+                        : import.meta.env.VITE_API+`${singleBlog.image_path}`
                     }
                     alt=""
                     className="w-48-px h-48-px rounded-circle object-fit-cover"

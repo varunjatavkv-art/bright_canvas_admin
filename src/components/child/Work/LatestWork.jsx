@@ -12,7 +12,7 @@ const LatestWork = () => {
   useEffect(() => {
     const fetchWork = async () => {
       try {
-        const res = await axios.get("http://localhost:8000/api/work");
+        const res = await axios.get(import.meta.env.VITE_API+"api/work");
         setWork(res.data.data.slice(0,5));
       } catch (error) {
         console.log("error is fetching blogs", error);
@@ -35,10 +35,7 @@ const LatestWork = () => {
               const MAX_LENGTH = 150; 
               const imgSrc = data.image_path?.startsWith("http")
                 ? data.image_path
-                : `http://localhost:8000/${data.image_path}`;
-
-                console.log(imgSrc);
-                
+                : import.meta.env.VITE_API+`${data.image_path}`;
                
               return (
                 <div className="d-flex flex-wrap" key={idx}>

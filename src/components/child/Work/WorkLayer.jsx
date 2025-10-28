@@ -19,7 +19,7 @@ const WorkLayer = () => {
       setLoading(true);
       try {
         const res = await axios.get(
-          `http://localhost:8000/api/work?page=${page}&limit=${limit}`
+          import.meta.env.VITE_API + `api/work?page=${page}&limit=${limit}`
         );
 
         if (res.data.data) {
@@ -53,7 +53,7 @@ const WorkLayer = () => {
 
   const deleteWork = async (id) => {
     try {
-      let res = await axios.delete("http://localhost:8000/api/work/" + id);
+      let res = await axios.delete(import.meta.env.VITE_API + "api/work/" + id);
       if (res.status == 200) {
         alert(res.data.message);
         setWork((prevBlog) => prevBlog.filter((post) => post._id !== id));
@@ -103,7 +103,7 @@ const WorkLayer = () => {
                       src={
                         data.image_path?.startsWith("http")
                           ? data.image_path
-                          : `http://localhost:8000/${data.image_path}`
+                          : import.meta.env.VITE_API + `${data.image_path}`
                       }
                       alt={data.title}
                       className="w-100 h-100 object-fit-cover"

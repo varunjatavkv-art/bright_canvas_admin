@@ -145,7 +145,7 @@ const AddInvoice = () => {
     
     try {
       const res = await axios.post(
-        `http://localhost:8000/api/invoice`,
+        import.meta.env.VITE_API + `api/invoice`,
         invoiceData
       );
       setInvoiceNumber("");
