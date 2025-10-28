@@ -234,8 +234,14 @@ const AddBlogForm = () => {
         console.warn("Unexpected response:", res.status, res.data);
       }
     } catch (err) {
-      console.error("Upload error:", err.message);
-      alert(err);
+      if(err.status == 400){
+        alert(err.response.data.message);
+      }
+      else{
+        console.error("Upload error:", err.message);
+        alert(err);
+      }
+     
     }
   };
   return (
@@ -261,7 +267,7 @@ const AddBlogForm = () => {
                 type="text"
                 className="form-control border border-neutral-200 radius-8"
                 id="title"
-                placeholder="Enter Post Title"
+                placeholder="Enter Work Title"
                 required
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
@@ -448,6 +454,7 @@ const AddBlogForm = () => {
                       type="file"
                       hidden
                       onChange={handleFileChange}
+                      accept=".jpeg, .jpg, .png"
                     />
                   </label>
                 )}

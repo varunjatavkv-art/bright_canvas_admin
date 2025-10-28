@@ -146,8 +146,12 @@ const AddBlogForm = () => {
         console.warn("Unexpected response:", res.status, res.data);
       }
     } catch (err) {
-      console.error("Upload error:", err);
-      alert(err);
+      if (err.status == 400) {
+        alert(err.response.data.message);
+      } else {
+        console.error("Upload error:", err);
+        alert(err);
+      }
     }
   };
   return (
@@ -283,6 +287,7 @@ const AddBlogForm = () => {
                       type="file"
                       hidden
                       onChange={handleFileChange}
+                      accept=".jpeg, .jpg, .png"
                     />
                   </label>
                 )}
