@@ -10,6 +10,20 @@ const BlogDetailsLayer = () => {
   const [singleBlog, setSingleBlog] = useState({});
   const [blog, setBlog] = useState([]);
 
+
+  useEffect(() => {
+    const fetchBlogs = async () => {
+      try {
+        const res = await axios.get("http://localhost:8000/api/blogs");
+        setBlog(res.data.data);
+      } catch (error) {
+        console.log("error is fetching blogs", error);
+      }
+    };
+    fetchBlogs();
+  }, []);
+
+
   useEffect(() => {
     const fetchSingleBlog = async () => {
       try {
@@ -24,17 +38,6 @@ const BlogDetailsLayer = () => {
     fetchSingleBlog();
   }, [blogId]);
 
-  useEffect(() => {
-    const fetchBlogs = async () => {
-      try {
-        const res = await axios.get("http://localhost:8000/api/blogs");
-        setBlog(res.data);
-      } catch (error) {
-        console.log("error is fetching blogs", error);
-      }
-    };
-    fetchBlogs();
-  }, []);
 
   return (
     <>

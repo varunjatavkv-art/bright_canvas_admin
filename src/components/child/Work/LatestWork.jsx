@@ -13,7 +13,7 @@ const LatestWork = () => {
     const fetchWork = async () => {
       try {
         const res = await axios.get("http://localhost:8000/api/work");
-        setWork(res.data.slice(0,5));
+        setWork(res.data.data.slice(0,5));
       } catch (error) {
         console.log("error is fetching blogs", error);
       }

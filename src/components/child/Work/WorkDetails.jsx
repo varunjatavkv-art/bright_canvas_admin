@@ -17,7 +17,7 @@ const WorkDetails = () => {
     const fetchWork = async () => {
       try {
         const res = await axios.get("http://localhost:8000/api/work");
-        setWork(res.data);
+        setWork(res.data.data);
       } catch (error) {
         console.log("error is fetching work", error);
       }

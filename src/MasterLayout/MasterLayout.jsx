@@ -16,6 +16,8 @@ const MasterLayout = () => {
   let [sidebarActive, seSidebarActive] = useState(false);
   let [mobileMenu, setMobileMenu] = useState(false);
 
+  const [search, setSearch] = useState("");
+
   useEffect(() => {
     if (typeof window === "undefined") return;
 
@@ -321,7 +323,7 @@ const MasterLayout = () => {
                   <Icon icon="heroicons:bars-3-solid" className="icon" />
                 </button>
                 <form className="navbar-search">
-                  <input type="text" name="search" placeholder="Search" />
+                  <input type="text" name="search" placeholder="Search" onChange={(e) => setSearch(e.target.value)} />
                   <Icon icon="ion:search-outline" className="icon" />
                 </form>
               </div>
@@ -418,7 +420,7 @@ const MasterLayout = () => {
 
         {/* dashboard-main-body */}
         <div className="dashboard-main-body">
-          <Outlet />
+          <Outlet context={{search , setSearch}}/>
         </div>
 
         {/* Footer section */}

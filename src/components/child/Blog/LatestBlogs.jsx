@@ -15,7 +15,7 @@ const LatestBlogs = () => {
     const fetchBlogs = async () => {
       try {
         const res = await axios.get("http://localhost:8000/api/blogs");
-        setBlog(res.data.slice(0,7));
+        setBlog(res.data.data.slice(0,7));
       } catch (error) {
         console.log("error is fetching blogs", error);
       }
