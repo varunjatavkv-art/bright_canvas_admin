@@ -124,12 +124,12 @@ const MasterLayout = () => {
               className="light-logo"
             />
             <img
-                 src="../assets/images/logo/Bright_Canvas_logo.webp"
+              src="../assets/images/logo/Bright_Canvas_logo.webp"
               alt="site logo"
               className="dark-logo"
             />
             <img
-                 src="../assets/images/logo/Bright_Canvas_logo.webp"
+              src="../assets/images/logo/Bright_Canvas_logo.webp"
               alt="site logo"
               className="logo-icon"
             />
@@ -217,19 +217,19 @@ const MasterLayout = () => {
                 <li>
                   <Link
                     to="/invoice"
-                    className={
-                      pathname === "/invoice" ? "active-page" : ""
-                    }
+                    className={pathname === "/invoice" ? "active-page" : ""}
                   >
                     <i className="ri-circle-fill circle-icon text-primary-600 w-auto" />{" "}
                     List
                   </Link>
                 </li>
-               
+
                 <li>
                   <Link
                     to="/invoice/invoice-add"
-                    className={pathname === "/invoice/invoice-add" ? "active-page" : ""}
+                    className={
+                      pathname === "/invoice/invoice-add" ? "active-page" : ""
+                    }
                   >
                     <i className="ri-circle-fill circle-icon text-info-main w-auto" />{" "}
                     Add new
@@ -323,7 +323,12 @@ const MasterLayout = () => {
                   <Icon icon="heroicons:bars-3-solid" className="icon" />
                 </button>
                 <form className="navbar-search">
-                  <input type="text" name="search" placeholder="Search" onChange={(e) => setSearch(e.target.value)} />
+                  <input
+                    type="text"
+                    name="search"
+                    placeholder="Search"
+                    onChange={(e) => setSearch(e.target.value)}
+                  />
                   <Icon icon="ion:search-outline" className="icon" />
                 </form>
               </div>
@@ -332,7 +337,7 @@ const MasterLayout = () => {
               <div className="d-flex flex-wrap align-items-center gap-3">
                 {/* ThemeToggleButton */}
                 <ThemeToggleButton />
-              
+
                 {/* Notification dropdown end */}
                 <div className="dropdown">
                   <button
@@ -420,7 +425,7 @@ const MasterLayout = () => {
 
         {/* dashboard-main-body */}
         <div className="dashboard-main-body">
-          <Outlet context={{search , setSearch}}/>
+          <Outlet context={{ search, setSearch }} />
         </div>
 
         {/* Footer section */}
@@ -430,9 +435,7 @@ const MasterLayout = () => {
               <p className="mb-0">© 2025 Bright Canvas. All Rights Reserved.</p>
             </div>
             <div className="col-auto">
-              <p className="mb-0">
-                Bright Canvas Admin
-              </p>
+              <p className="mb-0">Bright Canvas Admin</p>
             </div>
           </div>
         </footer>

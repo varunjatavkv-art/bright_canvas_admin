@@ -3,7 +3,10 @@ import Breadcrumb from "../../Breadcrumb";
 import { v4 as uuidv4 } from "uuid";
 import { useEffect, useState, useMemo } from "react";
 import axios from "axios";
-import { formatCurrency, isNumberKey } from "../../../commonFunctions/common.functions";
+import {
+  formatCurrency,
+  isNumberKey,
+} from "../../../commonFunctions/common.functions";
 import { useNavigate } from "react-router-dom";
 
 const AddInvoice = () => {
@@ -139,10 +142,10 @@ const AddInvoice = () => {
         subtotal: subtotal,
         total: total,
         tax: tax,
-        status: status
+        status: status,
       },
     };
-    
+
     try {
       const res = await axios.post(
         import.meta.env.VITE_API + `api/invoice`,
@@ -157,35 +160,34 @@ const AddInvoice = () => {
       setCustomerPhone("");
       setDueDate("");
       setStatus("");
-      if(res.status == 201){
+      if (res.status == 201) {
         alert("Invoice Created Successfully");
-        navigate('/invoice');
+        navigate("/invoice");
       }
-      if(res.status == 404){
+      if (res.status == 404) {
         alert("Message : ", res.error);
       }
-      if(res.status == 400){
+      if (res.status == 400) {
         console.log("error 400");
-        
+
         alert(res.error);
       }
-      
     } catch (error) {
-    
-     if (error.response) {
-         const status = error.response.status;
-         const errorMessage = error.response.data.error || 'An unknown error occurred.';
+      if (error.response) {
+        const status = error.response.status;
+        const errorMessage =
+          error.response.data.error || "An unknown error occurred.";
 
-         if (status === 400) {
-             alert(`Error: ${errorMessage}`);
-         } else if (status === 404) {
-             alert("Server Error: API endpoint not found.");
-         } else {
-             alert(`Server Error (${status}): ${errorMessage}`);
-         }
-     } else {
-         alert("Network Error: Could not connect to the server.");
-     }
+        if (status === 400) {
+          alert(`Error: ${errorMessage}`);
+        } else if (status === 404) {
+          alert("Server Error: API endpoint not found.");
+        } else {
+          alert(`Server Error (${status}): ${errorMessage}`);
+        }
+      } else {
+        alert("Network Error: Could not connect to the server.");
+      }
     }
   };
 
@@ -237,9 +239,11 @@ const AddInvoice = () => {
                     </div>
                     <div className="col-sm-4">
                       <img
-                        src="../../../assets/images/logo.png"
+                        src="../../assets/images/logo/Bright_Canvas_logo.webp"
                         alt="image_icon"
                         className="mb-8"
+                        height={"100px"}
+                        width={"100px"}
                       />
                       <p className="mb-1 text-sm">Bright Canvas</p>
                       <p className="mb-0 text-sm">
@@ -303,7 +307,7 @@ const AddInvoice = () => {
                                 onChange={(e) =>
                                   setCustomerPhone(e.target.value)
                                 }
-                                onKeyDown={(evt) =>isNumberKey(evt)}
+                                onKeyDown={(evt) => isNumberKey(evt)}
                               />
                             </td>
                           </tr>
@@ -316,8 +320,12 @@ const AddInvoice = () => {
                           <tr>
                             <td>Status :</td>
                             <td className="ps-8 px-2">
-                              <select name="status" id="status" onChange={(e) => setStatus(e.target.value)}>
-                              <option value="-1">Select</option>
+                              <select
+                                name="status"
+                                id="status"
+                                onChange={(e) => setStatus(e.target.value)}
+                              >
+                                <option value="-1">Select</option>
                                 <option value="0">Pending</option>
                                 <option value="1">Paid</option>
                               </select>

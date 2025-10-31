@@ -1,10 +1,13 @@
 import { Icon } from "@iconify/react/dist/iconify.js";
-import {Link, useParams} from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import Breadcrumb from "../../Breadcrumb";
 import { useEffect, useState } from "react";
 import LoadingComponent from "../../common/LoadingComponent";
 import axios from "axios";
-import { formatCurrency, formatDate } from "../../../commonFunctions/common.functions";
+import {
+  formatCurrency,
+  formatDate,
+} from "../../../commonFunctions/common.functions";
 
 const InvoicePreview = () => {
   const { invoiceId } = useParams();
@@ -41,47 +44,62 @@ const InvoicePreview = () => {
   }
   return (
     <>
-    <Breadcrumb title={"Invoice Preview"} />
-    <div className='card'>
-      <div className='card-header'>
-        <div className='d-flex flex-wrap align-items-center justify-content-end gap-2'>
-        <a
-    href={`https://wa.me/${singleInvoice?.data?.customer?.phone}?text=${encodeURIComponent(
-        `Hello ${singleInvoice?.data?.customer?.name},\n\nYour Invoice is ready! You can view and download it here:${import.meta.env.VITE_API}/invoice_pdf/invoice_${singleInvoice?.data?.metadata?.invoiceNumber}.pdf`
-    )}`}
-    target="_blank"
-    rel="noopener noreferrer"
-    className='btn btn-sm btn-success radius-8 d-inline-flex align-items-center gap-1 ms-2'
->
-    <Icon icon='cib:whatsapp' className='text-xl' />
-    Send via WhatsApp
-</a>
-          <a
-            href={import.meta.env.VITE_API + `api/invoice/download/invoice_${singleInvoice?.data?.metadata?.invoiceNumber}.pdf`} download
-            className='btn btn-sm btn-warning radius-8 d-inline-flex align-items-center gap-1'
-          >
-            <Icon icon='solar:download-linear' className='text-xl' />
-            Download
-          </a>
-          <Link
-            to={ `/invoice/invoice-edit/${invoiceId}`}
-            className='btn btn-sm btn-success radius-8 d-inline-flex align-items-center gap-1'
-          >
-            <Icon icon='uil:edit' className='text-xl' />
-            Edit
-          </Link>
-          <a
-           href={import.meta.env.VITE_API + `invoice_pdf/invoice_${singleInvoice?.data?.metadata?.invoiceNumber}.pdf`}
-           target="_blank"
-           rel="noopener noreferrer"
-            className='btn btn-sm btn-danger radius-8 d-inline-flex align-items-center gap-1'
-          >
-            <Icon icon='basil:printer-outline' className='text-xl' />
-            Print
-          </a>
+      <Breadcrumb title={"Invoice Preview"} />
+      <div className="card">
+        <div className="card-header">
+          <div className="d-flex flex-wrap align-items-center justify-content-end gap-2">
+            <a
+              href={`https://wa.me/${
+                singleInvoice?.data?.customer?.phone
+              }?text=${encodeURIComponent(
+                `Hello ${
+                  singleInvoice?.data?.customer?.name
+                },\n\nYour Invoice is ready! You can view and download it here:${
+                  import.meta.env.VITE_API
+                }/invoice_pdf/invoice_${
+                  singleInvoice?.data?.metadata?.invoiceNumber
+                }.pdf`
+              )}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn btn-sm btn-success radius-8 d-inline-flex align-items-center gap-1 ms-2"
+            >
+              <Icon icon="cib:whatsapp" className="text-xl" />
+              Send via WhatsApp
+            </a>
+            <a
+              href={
+                import.meta.env.VITE_API +
+                `api/invoice/download/invoice_${singleInvoice?.data?.metadata?.invoiceNumber}.pdf`
+              }
+              download
+              className="btn btn-sm btn-warning radius-8 d-inline-flex align-items-center gap-1"
+            >
+              <Icon icon="solar:download-linear" className="text-xl" />
+              Download
+            </a>
+            <Link
+              to={`/invoice/invoice-edit/${invoiceId}`}
+              className="btn btn-sm btn-success radius-8 d-inline-flex align-items-center gap-1"
+            >
+              <Icon icon="uil:edit" className="text-xl" />
+              Edit
+            </Link>
+            <a
+              href={
+                import.meta.env.VITE_API +
+                `invoice_pdf/invoice_${singleInvoice?.data?.metadata?.invoiceNumber}.pdf`
+              }
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn btn-sm btn-danger radius-8 d-inline-flex align-items-center gap-1"
+            >
+              <Icon icon="basil:printer-outline" className="text-xl" />
+              Print
+            </a>
+          </div>
         </div>
-      </div>
-      <div className="card-body py-40">
+        <div className="card-body py-40">
           <div className="row justify-content-center" id="invoice">
             <div className="col-lg-8">
               <div className="shadow-4 border radius-8">
@@ -106,9 +124,11 @@ const InvoicePreview = () => {
                     </div>
                     <div className="col-sm-4">
                       <img
-                        src="assets/images/logo.png"
+                         src="../../assets/images/logo/Bright_Canvas_logo.webp"
                         alt="image_icon"
                         className="mb-8"
+                        height={"100px"}
+                        width={"100px"}
                       />
                       <p className="mb-1 text-sm">Bright Canvas</p>
                       <p className="mb-0 text-sm">
@@ -127,7 +147,10 @@ const InvoicePreview = () => {
                             <td>Name</td>
                             <td className="ps-8">
                               :{" "}
-                              <span> {singleInvoice?.data?.customer?.name}</span>
+                              <span>
+                                {" "}
+                                {singleInvoice?.data?.customer?.name}
+                              </span>
                             </td>
                           </tr>
                           <tr>
@@ -214,12 +237,12 @@ const InvoicePreview = () => {
                         <tbody>
                           {singleInvoice?.data?.items.map((item) => {
                             let unit;
-                            if(item.unit == "0"){
-                                unit = "PC";
-                            }else if(item.unit == "1"){
-                                unit = "KG"
-                            }else{
-                                unit = "HR"
+                            if (item.unit == "0") {
+                              unit = "PC";
+                            } else if (item.unit == "1") {
+                              unit = "KG";
+                            } else {
+                              unit = "HR";
                             }
                             return (
                               <tr key={item._id}>
@@ -228,7 +251,9 @@ const InvoicePreview = () => {
                                 <td>{item.qty}</td>
                                 <td>{unit}</td>
                                 <td>{formatCurrency(item.unitPrice)}</td>
-                                <td>{formatCurrency(item.qty * item.unitPrice)}</td>
+                                <td>
+                                  {formatCurrency(item.qty * item.unitPrice)}
+                                </td>
                                 <td className="text-center">
                                   <button type="button" className="remove-row">
                                     <Icon
@@ -243,7 +268,7 @@ const InvoicePreview = () => {
                         </tbody>
                       </table>
                     </div>
-                 
+
                     <div className="d-flex flex-wrap justify-content-between gap-3 mt-24">
                       <div>
                         <p className="text-sm mb-0">
@@ -261,7 +286,9 @@ const InvoicePreview = () => {
                               <td className="pe-64">Subtotal:</td>
                               <td className="pe-16">
                                 <span className="text-primary-light fw-semibold">
-                                 {formatCurrency(singleInvoice?.data?.summary?.subtotal)}
+                                  {formatCurrency(
+                                    singleInvoice?.data?.summary?.subtotal
+                                  )}
                                 </span>
                               </td>
                             </tr>
@@ -274,10 +301,14 @@ const InvoicePreview = () => {
                               </td>
                             </tr>
                             <tr>
-                              <td className="pe-64 border-bottom pb-4">Tax (18%):</td>
+                              <td className="pe-64 border-bottom pb-4">
+                                Tax (18%):
+                              </td>
                               <td className="pe-16 border-bottom pb-4">
                                 <span className="text-primary-light fw-semibold">
-                                {formatCurrency(singleInvoice?.data?.summary?.tax)}
+                                  {formatCurrency(
+                                    singleInvoice?.data?.summary?.tax
+                                  )}
                                 </span>
                               </td>
                             </tr>
@@ -289,7 +320,9 @@ const InvoicePreview = () => {
                               </td>
                               <td className="pe-16 pt-4">
                                 <span className="text-primary-light fw-semibold">
-                                {formatCurrency(singleInvoice?.data?.summary?.total)}
+                                  {formatCurrency(
+                                    singleInvoice?.data?.summary?.total
+                                  )}
                                 </span>
                               </td>
                             </tr>
@@ -316,7 +349,7 @@ const InvoicePreview = () => {
             </div>
           </div>
         </div>
-    </div>
+      </div>
     </>
   );
 };

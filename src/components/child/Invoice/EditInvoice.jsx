@@ -275,10 +275,12 @@ const EditInvoice = () => {
                     </div>
                     {/* ... (Logo and Business Info section remains the same) ... */}
                     <div className="col-sm-4">
-                      <img
-                        src="assets/images/logo.png"
+                    <img
+                        src="../../assets/images/logo/Bright_Canvas_logo.webp"
                         alt="image_icon"
                         className="mb-8"
+                        height={"100px"}
+                        width={"100px"}
                       />
                       <p className="mb-1 text-sm">Bright Canvas</p>
                       <p className="mb-0 text-sm">
