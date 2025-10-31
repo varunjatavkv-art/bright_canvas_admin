@@ -124,7 +124,7 @@ const InvoicePreview = () => {
                     </div>
                     <div className="col-sm-4">
                       <img
-                         src="../../assets/images/logo/Bright_Canvas_logo.webp"
+                        src="../../assets/images/logo/Bright_Canvas_logo.webp"
                         alt="image_icon"
                         className="mb-8"
                         height={"100px"}
