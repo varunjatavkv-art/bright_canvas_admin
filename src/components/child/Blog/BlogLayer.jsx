@@ -76,7 +76,7 @@ const BlogLayer = () => {
       console.log("Unexpected Error: ", error);
     }
   };
-  if (blog.length === 0 && !error) {
+  if (totalCount === 0 && !error) {
     return <NoDataFound text={"No Blogs Found!"} />;
   }
 
@@ -115,7 +115,7 @@ const BlogLayer = () => {
                   <div className="mt-20">
                     <div className="d-flex align-items-center gap-6 justify-content-between flex-wrap mb-16">
                       <Link
-                        to="blog-details"
+                        to={"/blog/blog-details/" + data._id}
                         className="px-20 py-6 bg-neutral-100 rounded-pill bg-hover-neutral-300 text-neutral-600 fw-medium"
                       >
                         Blog

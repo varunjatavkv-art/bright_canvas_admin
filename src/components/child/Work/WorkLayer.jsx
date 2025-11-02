@@ -112,7 +112,7 @@ const WorkLayer = () => {
                   <div className="mt-20">
                     <div className="d-flex align-items-center gap-6 justify-content-between flex-wrap mb-16">
                       <Link
-                        to="work-details"
+                        to={"/work/work-details/" + data._id}
                         className="px-20 py-6 bg-neutral-100 rounded-pill bg-hover-neutral-300 text-neutral-600 fw-medium"
                       >
                         Work
