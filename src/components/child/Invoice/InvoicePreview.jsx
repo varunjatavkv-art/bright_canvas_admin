@@ -35,6 +35,7 @@ const InvoicePreview = () => {
 
     fetchSingleInvoice();
   }, [invoiceId]);
+  
 
   if (Loading) {
     return <LoadingComponent />;
@@ -70,7 +71,7 @@ const InvoicePreview = () => {
             <a
               href={
                 import.meta.env.VITE_API +
-                `api/invoice/download/invoice_${singleInvoice?.data?.metadata?.invoiceNumber}.pdf`
+                `api/invoice/download/invoice_${singleInvoice?.data?.metadata?.invoiceNumber}.pdf?id=${invoiceId}`
               }
               download
               className="btn btn-sm btn-warning radius-8 d-inline-flex align-items-center gap-1"
