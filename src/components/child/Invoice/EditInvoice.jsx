@@ -55,7 +55,6 @@ const EditInvoice = () => {
     serial: serial,
     description: "",
     qty: 1,
-    unit: "-1",
     unitPrice: 0,
   });
   const [invoiceItems, setInvoiceItems] = useState([createNewItem(1)]);
@@ -402,9 +401,7 @@ const EditInvoice = () => {
                             <th scope="col" className="text-sm">
                               Qty
                             </th>
-                            <th scope="col" className="text-sm">
-                              Units
-                            </th>
+                            
                             <th scope="col" className="text-sm">
                               Unit Price
                             </th>
@@ -453,24 +450,7 @@ const EditInvoice = () => {
                                     className="w-full text-center border-b border-gray-200 p-1 focus:outline-none focus:border-blue-400"
                                   />
                                 </td>
-                                <td>
-                                  <select
-                                    value={item.unit}
-                                    onChange={(e) =>
-                                      handleItemChange(
-                                        itemKey,
-                                        "unit",
-                                        e.target.value
-                                      )
-                                    }
-                                    className="w-full border-b border-gray-200 p-1 focus:outline-none focus:border-blue-400"
-                                  >
-                                    <option value="-1">Units</option>
-                                    <option value="0">PC</option>
-                                    <option value="1">KG</option>
-                                    <option value="2">HR</option>
-                                  </select>
-                                </td>
+                               
                                 <td>
                                   <input
                                     type="text"
