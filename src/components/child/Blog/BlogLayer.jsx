@@ -14,9 +14,9 @@ const BlogLayer = () => {
   const [totalCount, setTotalCount] = useState(0);
   const [limit, setLimit] = useState(5);
 
-  // const outletContext = useOutletContext(); 
+  // const outletContext = useOutletContext();
   // console.log(outletContext);
-  
+
   useEffect(() => {
     const fetchBlogs = async () => {
       setLoading(true);
@@ -67,7 +67,9 @@ const BlogLayer = () => {
 
   const deletePost = async (id) => {
     try {
-      let res = await axios.delete(import.meta.env.VITE_API + "api/blogs/" + id);
+      let res = await axios.delete(
+        import.meta.env.VITE_API + "api/blogs/" + id
+      );
       if (res.status == 200) {
         alert(res.data.message);
         setBlog((prevBlog) => prevBlog.filter((post) => post._id !== id));
@@ -76,6 +78,8 @@ const BlogLayer = () => {
       console.log("Unexpected Error: ", error);
     }
   };
+
+
   if (totalCount === 0 && !error) {
     return <NoDataFound text={"No Blogs Found!"} />;
   }
@@ -145,12 +149,20 @@ const BlogLayer = () => {
                       <i className="ri-arrow-right-double-line text-xl d-flex line-height-1" />
                     </Link>
 
-                    <button
-                      className="bg-red text-black py-2 px-2 rounded-lg"
-                      onClick={() => deletePost(data._id)}
-                    >
-                      Delete
-                    </button>
+                    <div className="flex justify-around items-center pt-6">
+                      <button
+                        className="bg-red py-2 px-2 rounded-xl"
+                        onClick={() => deletePost(data._id)}
+                      >
+                        Delete
+                      </button>
+                      <Link
+                        className="bg-yellow-300 text-black py-2 px-2 rounded-xl"
+                        to={"/blog/blog-edit/" + data._id}
+                      >
+                        Update
+                      </Link>
+                    </div>
                   </div>
                 </div>
               </div>
