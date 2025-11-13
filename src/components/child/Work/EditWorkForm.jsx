@@ -1,79 +1,82 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Icon } from "@iconify/react";
 import axios from "axios";
-import { useNavigate, useParams } from "react-router-dom";
+
 // Use Quill directly (avoid react-quill which calls findDOMNode)
 import Quill from "quill";
 import "quill/dist/quill.snow.css";
 
 import "highlight.js/styles/github.css";
+import { useNavigate, useParams } from "react-router-dom";
 
-const EditBlogForm = () => {
-  const { blogId } = useParams();
-
-  const navigate = useNavigate();
+const EditWorkForm = () => {
+  const { workId } = useParams();
   const [imageFile, setImageFile] = useState(null);
 
   const [imagePreview, setImagePreview] = useState(null);
 
-
-  const [value, setValue] = useState("");
+  const [value, setValue] = useState(null);
+  const [service, setService] = useState(null);
   const [title, setTitle] = useState("");
 
   const [existingImageUrl, setExistingImageUrl] = useState(null);
 
   const quillRef = useRef(null);
+  const serviceQuillRef = useRef(null);
   const editorContainerRef = useRef(null);
-
+  const serviceContainerRef = useRef(null);
   // capture initial value at mount to avoid effect dependencies
-  // We'll update this ref in the fetch useEffect
-  const initialValueRef = useRef(""); // Initialize as empty string
+  const initialValueRef = useRef(value);
+  const initialServiceRef = useRef(service);
+  const navigate = useNavigate();
 
- 
   useEffect(() => {
-    const fetchSingleBlog = async () => {
+    const fetchSingleWork = async () => {
       try {
         const response = await axios.get(
-          import.meta.env.VITE_API + `api/blogs/${blogId}`
+          import.meta.env.VITE_API + `api/work/${workId}`
         );
 
         if (response.status === 200) {
-          const blogData = response.data;
-          setTitle(blogData?.title || "");
+          const workData = response.data;
+          setTitle(workData?.title || "");
 
           // ⭐️ Set initial Quill content and update ref for Quill init useEffect
-          const descriptionHtml = blogData?.description || "";
+          const descriptionHtml = workData?.description || "";
+          const serviceHtml = workData?.service || "";
           setValue(descriptionHtml); // for state tracking
+          setService(serviceHtml);
           initialValueRef.current = descriptionHtml; // ⭐️ This is used by the Quill useEffect
-
+          initialServiceRef.current = serviceHtml;
           // ⭐️ Set existing image URL
-          if (blogData?.image) {
+          if (workData?.image) {
             // Assuming your backend returns a partial path, construct the full URL
-            const imageUrl = import.meta.env.VITE_API + blogData.image;
+            const imageUrl = import.meta.env.VITE_API + workData.image;
             setImagePreview(imageUrl);
-            setExistingImageUrl(blogData.image); // Store server path
+            setExistingImageUrl(workData.image); // Store server path
           }
 
           // ⭐️ If Quill is already initialized, manually set the content now that we have it
           const editor = quillRef.current?.getEditor?.();
-          if (editor) {
+          const serviceEditor = serviceQuillRef.current?.getEditor?.();
+          if (editor && serviceEditor) {
              editor.root.innerHTML = descriptionHtml;
+             serviceEditor.root.innerHTML = serviceHtml;
           }
         }
       } catch (error) {
         console.error("Error fetching blog:", error);
       }
     };
-    fetchSingleBlog();
-  }, [blogId]);
+    fetchSingleWork();
+  }, [workId]);
 
-  // --- 2. INITIALIZE QUILL EDITOR ---
+
   useEffect(() => {
     if (!editorContainerRef.current) return;
     // prevent double initialization
     if (editorContainerRef.current.__quill) return;
-
-    // Register whitelists and modules (keep existing logic)
+    // register whitelists
     const Font = Quill.import("formats/font");
     Font.whitelist = ["sans-serif", "serif", "monospace", "roboto"];
     Quill.register(Font, true);
@@ -84,7 +87,7 @@ const EditBlogForm = () => {
 
     const localModules = { toolbar: { container: "#toolbar-container" } };
 
-    // Populate toolbar select options (keep existing logic)
+    // Populate toolbar select options (when toolbar DOM exists, Quill won't auto-fill these)
     const toolbarEl = document.getElementById("toolbar-container");
     if (toolbarEl) {
       const sizeSelect = toolbarEl.querySelector(".ql-size");
@@ -119,12 +122,8 @@ const EditBlogForm = () => {
       placeholder: "Compose an epic...",
     });
 
-    // ⭐️ Use initialValueRef.current here to set the content
-    // This value might be empty on the first render, but the fetch useEffect
-    // handles setting it later if the fetch is slow.
-    if (initialValueRef.current) {
-        q.root.innerHTML = initialValueRef.current;
-    }
+    // set initial content (captured at mount)
+    if (initialValueRef.current) q.root.innerHTML = initialValueRef.current;
 
     q.on("text-change", () => {
       setValue(q.root.innerHTML);
@@ -140,83 +139,155 @@ const EditBlogForm = () => {
 
     return () => {
       q.off("text-change");
-      // Clean up if needed
+      // destroy quill DOM and listeners if needed
     };
-  }, []); // Empty dependency array ensures it runs only once on mount
+  }, []);
 
-  // --- 3. HANDLE IMAGE CHANGES ---
+  useEffect(() => {
+    if (!serviceContainerRef.current) return;
+    // prevent double initialization
+    if (serviceContainerRef.current.__quill) return;
+    // register whitelists
+    const ServiceFont = Quill.import("formats/font");
+    ServiceFont.whitelist = ["sans-serif", "serif", "monospace", "roboto"];
+    Quill.register(ServiceFont, true);
+
+    const ServiceSize = Quill.import("attributors/style/size");
+    ServiceSize.whitelist = ["12px", "14px", "18px", "24px"];
+    Quill.register(ServiceSize, true);
+
+    const serviceLocalModules = {
+      toolbar: { container: "#toolbar-container-service" },
+    };
+
+    // Populate toolbar select options (when toolbar DOM exists, Quill won't auto-fill these)
+    const ServiceToolbarEl = document.getElementById(
+      "toolbar-container-service"
+    );
+    if (ServiceToolbarEl) {
+      const sizeSelect = ServiceToolbarEl.querySelector(".ql-size");
+      if (sizeSelect && sizeSelect.options.length === 0) {
+        [
+          { name: "Small", size: "12px" },
+          { name: "Medium", size: "14px" },
+          { name: "Large", size: "18px" },
+          { name: "Huge", size: "24px" },
+        ].forEach((sz) => {
+          const opt = document.createElement("option");
+          opt.value = sz.size;
+          opt.innerText = sz.name;
+          sizeSelect.appendChild(opt);
+        });
+      }
+
+      const fontSelect = ServiceToolbarEl.querySelector(".ql-font-service");
+      if (fontSelect && fontSelect.options.length === 0) {
+        ["sans-serif", "serif", "monospace", "roboto"].forEach((f) => {
+          const opt = document.createElement("option");
+          opt.value = f;
+          opt.innerText = f;
+          fontSelect.appendChild(opt);
+        });
+      }
+    }
+
+    const q2 = new Quill(serviceContainerRef.current, {
+      modules: serviceLocalModules,
+      theme: "snow",
+      placeholder: "Compose an epic...",
+    });
+
+    // set initial content (captured at mount)
+    if (initialServiceRef.current)
+      q2.root.innerHTML = initialServiceRef.current;
+
+    q2.on("text-change", () => {
+      setService(q2.root.innerHTML);
+    });
+
+    // expose similar API as react-quill's ref.getEditor()
+    serviceQuillRef.current = {
+      getEditor: () => q2,
+    };
+
+    // mark as initialized
+    serviceContainerRef.current.__quill = q2;
+
+    return () => {
+      q2.off("text-change");
+      // destroy quill DOM and listeners if needed
+    };
+  }, []);
+
   const handleFileChange = (e) => {
     const file = e.target.files && e.target.files[0];
     if (!file) return;
-
-    if (imagePreview && !existingImageUrl) URL.revokeObjectURL(imagePreview);
+    // revoke previous preview
+    if (imagePreview) URL.revokeObjectURL(imagePreview);
     const src = URL.createObjectURL(file);
     setImagePreview(src);
-    setImageFile(file);
-    setExistingImageUrl(null); // Clear existing URL if a new file is uploaded
+    setImageFile(file); // store actual File for upload
   };
 
   const handleRemoveImage = () => {
-    if (imageFile && imagePreview) URL.revokeObjectURL(imagePreview);
-
+    if (imagePreview) URL.revokeObjectURL(imagePreview);
     setImagePreview(null);
     setImageFile(null);
-    setExistingImageUrl(null); // Set to null to signal to backend to remove the image
   };
+  // inside your component
 
-  // --- 4. HANDLE FORM SUBMISSION (UPDATE) ---
   const handleSubmitForm = async (e) => {
     e.preventDefault();
 
-    const editor = quillRef.current?.getEditor?.();
+    // get the Quill instance safely (from quillRef or the DOM-stored instance)
+    const editor =
+      quillRef.current?.getEditor?.() || editorContainerRef.current?.__quill;
+
+    // get the Service Quill instance safely
+    const serviceEditor =
+      serviceQuillRef.current?.getEditor?.() ||
+      serviceContainerRef.current?.__quill;
+
+    // extract HTML content
     const descriptionHtml = editor?.root?.innerHTML ?? "";
+
+    const serviceHtml = serviceEditor?.root?.innerHTML ?? "";
 
     const formData = new FormData();
     formData.append("title", title);
     formData.append("description", descriptionHtml);
-
-    if (imageFile) {
-      // New image file selected
-      formData.append("image", imageFile);
-    } else if (existingImageUrl === null) {
-      // Image was removed, but no new one was uploaded.
-      // Your backend should check for this key to delete the old image.
-      formData.append("image_action", "remove");
-    }
-
+    formData.append("service", serviceHtml);
+    if (imageFile) formData.append("image", imageFile);
     try {
-      // ⭐️ Use axios.put for updating the existing blog
       const res = await axios.put(
-        import.meta.env.VITE_API + `api/blogs/update/${blogId}`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
+        import.meta.env.VITE_API + "api/work/update/" + workId,
+        formData
       );
       if (res.status === 200) {
-        alert("Blog updated successfully!");
-        navigate("/blog");
+        alert("Work edited successfully!");
+        setTitle("");
+        setValue("");
+        setService("");
+        handleRemoveImage();
+        if (editor) editor.root.innerHTML = "";
+        navigate("/work");
       } else {
         console.warn("Unexpected response:", res.status, res.data);
       }
     } catch (err) {
-      const errorMessage =
-        err.response?.data?.message ||
-        err.message ||
-        "An unknown error occurred during update.";
-      console.error("Update error:", err);
-      alert(errorMessage);
+      if (err.status == 400) {
+        alert(err.response.data.message);
+      } else {
+        console.error("Upload error:", err.message);
+        alert(err);
+      }
     }
   };
-
-  // --- 5. RENDER JSX ---
   return (
     <div className="col-lg-8">
       <div className="card mt-24">
         <div className="card-header border-bottom">
-          <h6 className="text-xl mb-0">Edit Blog</h6>
+          <h6 className="text-xl mb-0">Edit Work</h6>
         </div>
         <div className="card-body p-24">
           <form
@@ -229,13 +300,13 @@ const EditBlogForm = () => {
                 className="form-label fw-bold text-neutral-900"
                 htmlFor="title"
               >
-                Blog Title:{" "}
+                Works Title:{" "}
               </label>
               <input
                 type="text"
                 className="form-control border border-neutral-200 radius-8"
                 id="title"
-                placeholder="Enter Post Title"
+                placeholder="Enter Work Title"
                 required
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
@@ -244,7 +315,7 @@ const EditBlogForm = () => {
 
             <div>
               <label className="form-label fw-bold text-neutral-900">
-                Blog Description
+                Work Description
               </label>
               <div className="border border-neutral-200 radius-8 overflow-hidden">
                 <div className="height-200">
@@ -303,6 +374,68 @@ const EditBlogForm = () => {
                 </div>
               </div>
             </div>
+
+            <div>
+              <label className="form-label fw-bold text-neutral-900">
+                Service Description
+              </label>
+              <div className="border border-neutral-200 radius-8 overflow-hidden">
+                <div className="height-200">
+                  {/* Toolbar */}
+                  <div id="toolbar-container-service">
+                    <span className="ql-formats">
+                      <select className="ql-font"></select>
+                      <select className="ql-size"></select>
+                    </span>
+                    <span className="ql-formats">
+                      <button className="ql-bold"></button>
+                      <button className="ql-italic"></button>
+                      <button className="ql-underline"></button>
+                      <button className="ql-strike"></button>
+                    </span>
+                    <span className="ql-formats">
+                      <select className="ql-color"></select>
+                      <select className="ql-background"></select>
+                    </span>
+                    <span className="ql-formats">
+                      <button className="ql-script" value="sub"></button>
+                      <button className="ql-script" value="super"></button>
+                    </span>
+                    <span className="ql-formats">
+                      <button className="ql-header" value="1"></button>
+                      <button className="ql-header" value="2"></button>
+                      <button className="ql-blockquote"></button>
+                      <button className="ql-code-block"></button>
+                    </span>
+                    <span className="ql-formats">
+                      <button className="ql-list" value="ordered"></button>
+                      <button className="ql-list" value="bullet"></button>
+                      <button className="ql-indent" value="-1"></button>
+                      <button className="ql-indent" value="+1"></button>
+                    </span>
+                    <span className="ql-formats">
+                      <button className="ql-direction" value="rtl"></button>
+                      <select className="ql-align"></select>
+                    </span>
+                    <span className="ql-formats">
+                      <button className="ql-link"></button>
+                      <button className="ql-image"></button>
+                      <button className="ql-video"></button>
+                      <button className="ql-formula"></button>
+                    </span>
+                    <span className="ql-formats">
+                      <button className="ql-clean"></button>
+                    </span>
+                  </div>
+
+                  {/* Editor container - Quill will be instantiated into this element */}
+                  <div
+                    ref={serviceContainerRef}
+                    className="quill-editor h-100"
+                  />
+                </div>
+              </div>
+            </div>
             <div>
               <label className="form-label fw-bold text-neutral-900">
                 Upload Thumbnail
@@ -352,7 +485,7 @@ const EditBlogForm = () => {
               </div>
             </div>
             <button type="submit" className="btn btn-primary-600 radius-8">
-              Update Blog
+              Submit
             </button>
           </form>
         </div>
@@ -361,4 +494,4 @@ const EditBlogForm = () => {
   );
 };
 
-export default EditBlogForm;
+export default EditWorkForm;

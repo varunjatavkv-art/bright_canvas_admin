@@ -141,13 +141,20 @@ const WorkLayer = () => {
                       Read More
                       <i className="ri-arrow-right-double-line text-xl d-flex line-height-1" />
                     </Link>
-
-                    <button
-                      className="bg-red text-black py-2 px-2 rounded-lg"
-                      onClick={() => deleteWork(data._id)}
-                    >
-                      Delete
-                    </button>
+                    <div className="flex justify-around items-center pt-6">
+                      <button
+                        className="bg-red text-black py-2 px-2 rounded-lg"
+                        onClick={() => deleteWork(data._id)}
+                      >
+                        Delete
+                      </button>
+                      <Link
+                        className="bg-yellow-300 text-black py-2 px-2 rounded-xl"
+                        to={"/work/work-edit/" + data._id}
+                      >
+                        Update
+                      </Link>
+                    </div>
                   </div>
                 </div>
               </div>
