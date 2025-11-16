@@ -1,3 +1,41 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+
+/* src/index.css or similar global CSS file */
+
+/* ---------------------------------- */
+/* Gilroy Regular */
+/* ---------------------------------- */
+@font-face {
+    font-family: 'Gilroy';
+    src: url('./assets/fonts/Gilroy-Regular.ttf') format('truetype');
+    font-weight: 400; /* Regular weight */
+    font-style: normal;
+    font-display: swap; /* Helps ensure text is visible while font loads */
+  }
+  
+  /* ---------------------------------- */
+  /* Gilroy Bold */
+  /* ---------------------------------- */
+  @font-face {
+    font-family: 'Gilroy';
+    src: url('./assets/fonts/Gilroy-Bold.ttf') format('truetype');
+    font-weight: 700; /* Bold weight */
+    font-style: normal;
+    font-display: swap;
+  }
+  
+  /* ---------------------------------- */
+  /* Gilroy Black */
+  /* ---------------------------------- */
+  @font-face {
+    font-family: 'Gilroy';
+    src: url('./assets/fonts/Gilroy-Black.ttf') format('truetype');
+    font-weight: 900; /* Use a high value for Black/Heavy */
+    font-style: normal;
+    font-display: swap;
+  }
+  
+  /* ... continue for Italic, Light, Medium, etc. */

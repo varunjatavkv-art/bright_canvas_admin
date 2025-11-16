@@ -13948,7 +13948,9 @@ td.fc-header-center {
 .sidebar.active:hover .sidebar-logo img.logo-icon {
   display: none;
 }
-
+.sidebar.active:hover .sidebar-logo img.light-logo-icon {
+  display: none;
+}
 .sidebar.active:hover .sidebar-menu li a span {
   display: inline-block;
 }
@@ -13976,6 +13978,9 @@ td.fc-header-center {
 }
 
 .sidebar.active .sidebar-logo img.logo-icon {
+  display: inline-block;
+}
+.sidebar.active .sidebar-logo img.light-logo-icon {
   display: inline-block;
 }
 
@@ -14022,6 +14027,9 @@ td.fc-header-center {
   display: none;
 }
 
+.sidebar-logo img.light-logo-icon {
+  display: none;
+}
 .sidebar-menu-area {
   height: calc(100vh - 72px);
   padding: 0.75rem 1rem;
@@ -14061,6 +14069,7 @@ td.fc-header-center {
 [data-theme="dark"] .sidebar-logo img.dark-logo {
   display: inline-block;
 }
+
 
 .sidebar-menu li.dropdown > a {
   position: relative;

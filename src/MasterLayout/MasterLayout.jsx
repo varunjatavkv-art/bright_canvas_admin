@@ -119,7 +119,7 @@ const MasterLayout = () => {
         <div>
           <Link to="/" className="sidebar-logo">
             <img
-              src="../assets/images/logo/Bright_Canvas_logo.webp"
+              src="../assets/images/logo/Logo BLACK.png"
               alt="site logo"
               className="light-logo"
             />
@@ -133,6 +133,7 @@ const MasterLayout = () => {
               alt="site logo"
               className="logo-icon"
             />
+         
           </Link>
         </div>
         <div className="sidebar-menu-area">
@@ -346,10 +347,11 @@ const MasterLayout = () => {
                     data-bs-toggle="dropdown"
                   >
                     <img
-                      src="../assets/images/user.png"
-                      alt="image_user"
-                      className="w-40-px h-40-px object-fit-cover rounded-circle"
+                      src="../assets/images/logo/bulb.png"
+                      alt="bulb_image"
+                      className="w-40-px h-40-px object-fit-cover rounded-circle dark-logo"
                     />
+              
                   </button>
                   <div className="dropdown-menu to-top dropdown-menu-sm">
                     <div className="py-12 px-16 radius-8 bg-primary-50 mb-16 d-flex align-items-center justify-content-between gap-2">
