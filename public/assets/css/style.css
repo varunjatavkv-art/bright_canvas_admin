@@ -14070,6 +14070,7 @@ table.fc-header {
   font-weight: 600;
 }
 
+
 .fc-state-default {
   border-color: var(--primary-600) !important;
   color: var(--primary-600) !important;
@@ -15451,10 +15452,10 @@ td.fc-header-center {
   display: inline-block;
 }
 
-.sidebar.active .sidebar-logo img.light-logo,
+/* .sidebar.active .sidebar-logo img.light-logo,
 .sidebar.active .sidebar-logo img.dark-logo {
   display: none;
-}
+} */
 
 .sidebar.active .sidebar-logo img.logo-icon {
   display: inline-block;
@@ -15501,6 +15502,24 @@ td.fc-header-center {
 
 .sidebar-logo img.logo-icon {
   display: none;
+}
+
+/* bulb image */
+
+.dropdown button img.light-logo {
+  display: inline-block; 
+}
+
+.dropdown button img.dark-logo {
+  display: none;
+}
+
+[data-theme="dark"] .dropdown button img.light-logo {
+  display: none;
+}
+
+[data-theme="dark"] .dropdown button img.dark-logo {
+  display: inline-block; 
 }
 
 .sidebar-menu-area {

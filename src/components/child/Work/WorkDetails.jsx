@@ -66,7 +66,7 @@ const WorkDetails = () => {
                     className="w-48-px h-48-px rounded-circle object-fit-cover"
                   />
                   <div className="d-flex flex-column">
-                    <h6 className="text-lg mb-0">John Doe</h6>
+                    <h6 className="text-lg mb-0 my-new-class">John Doe</h6>
                     <span className="text-sm text-neutral-500">1 day ago</span>
                   </div>
                 </div>

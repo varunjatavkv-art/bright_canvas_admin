@@ -92,7 +92,7 @@ const WorkLayer = () => {
           // 🚨 NEW: Use the helper function to get safe, truncated text
           const truncatedText = getTruncatedText(data.description, 100);
           return (
-            <div className="col-xxl-3 col-lg-4 col-sm-6 " key={idx}>
+            <div className="col-xxl-3 col-lg-4 col-sm-6" key={idx}>
               <div className="card h-100 p-0 radius-12 overflow-hidden">
                 <div className="card-body p-24">
                   <Link

@@ -128,12 +128,6 @@ const MasterLayout = () => {
               alt="site logo"
               className="dark-logo"
             />
-            <img
-              src="../assets/images/logo/Bright_Canvas_logo.webp"
-              alt="site logo"
-              className="logo-icon"
-            />
-         
           </Link>
         </div>
         <div className="sidebar-menu-area">
@@ -351,7 +345,12 @@ const MasterLayout = () => {
                       alt="bulb_image"
                       className="w-40-px h-40-px object-fit-cover rounded-circle dark-logo"
                     />
-              
+
+                    <img
+                      src="../assets/images/logo/bulb black.png"
+                      alt="bulb_image"
+                      className="w-40-px h-40-px object-fit-cover rounded-circle light-logo"
+                    />
                   </button>
                   <div className="dropdown-menu to-top dropdown-menu-sm">
                     <div className="py-12 px-16 radius-8 bg-primary-50 mb-16 d-flex align-items-center justify-content-between gap-2">
