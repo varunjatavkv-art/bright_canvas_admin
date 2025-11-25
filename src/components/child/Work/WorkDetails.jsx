@@ -4,7 +4,8 @@ import { useParams } from "react-router-dom";
 import axios from "axios";
 import LatestWork from "./LatestWork";
 import Breadcrumb from "../../Breadcrumb";
-
+import Category from "../../common/CaTEGORY.JSX";
+import Tags from "../../common/Tags";
 
 const WorkDetails = () => {
   const { workId } = useParams();
@@ -66,25 +67,25 @@ const WorkDetails = () => {
                     className="w-48-px h-48-px rounded-circle object-fit-cover"
                   />
                   <div className="d-flex flex-column">
-                    <h6 className="text-lg mb-0 my-new-class">John Doe</h6>
-                    <span className="text-sm text-neutral-500">1 day ago</span>
+                    <h6 className="text-lg mb-0 my-new-class font-gilroy">John Doe</h6>
+                    <span className="text-sm text-neutral-500 font-gilroy">1 day ago</span>
                   </div>
                 </div>
                 <div className="d-flex align-items-center gap-md-3 gap-2 flex-wrap">
-                  <div className="d-flex align-items-center gap-8 text-neutral-500 text-lg fw-medium">
+                  <div className="d-flex align-items-center gap-8 text-neutral-500 text-lg fw-medium font-gilroy">
                     <i className="ri-chat-3-line" />
                     10 Comments
                   </div>
-                  <div className="d-flex align-items-center gap-8 text-neutral-500 text-lg fw-medium">
+                  <div className="d-flex align-items-center gap-8 text-neutral-500 text-lg fw-medium font-gilroy">
                     <i className="ri-calendar-2-line" />
                     {singleWork.created_at?.split("T")[0]}
                   </div>
                 </div>
               </div>
-              <h3 className="mb-16">{singleWork.title} </h3>
-              <div dangerouslySetInnerHTML={{ __html: singleWork.description }}></div>
-              <h3  className="mb-16">Your Services</h3>
-              <div dangerouslySetInnerHTML={{ __html: singleWork.service }}></div>
+              <h3 className="mb-16 font-gilroy">{singleWork.title} </h3>
+              <div className="font-gilroy" dangerouslySetInnerHTML={{ __html: singleWork.description }}></div>
+              <h3  className="mb-16 font-gilroy">Your Services</h3>
+              <div className="font-gilroy" dangerouslySetInnerHTML={{ __html: singleWork.service }}></div>
             </div>
           </div>
         </div>
@@ -116,133 +117,9 @@ const WorkDetails = () => {
          
          <LatestWork/>
           {/* Category */}
-          <div className="card">
-            <div className="card-header border-bottom">
-              <h6 className="text-xl mb-0">Tags</h6>
-            </div>
-            <div className="card-body p-24">
-              <ul>
-                <li className="w-100 d-flex align-items-center justify-content-between flex-wrap gap-8 border-bottom border-dashed pb-12 mb-12">
-                  <Link
-                    to="/blog"
-                    className="text-hover-primary-600 transition-2"
-                  >
-                    {" "}
-                    Techbology{" "}
-                  </Link>
-                  <span className="text-neutral-500 w-28-px h-28-px rounded-circle bg-neutral-100 d-flex justify-content-center align-items-center transition-2 text-xs fw-semibold">
-                    01{" "}
-                  </span>
-                </li>
-                <li className="w-100 d-flex align-items-center justify-content-between flex-wrap gap-8 border-bottom border-dashed pb-12 mb-12">
-                  <Link
-                    to="/blog"
-                    className="text-hover-primary-600 transition-2"
-                  >
-                    {" "}
-                    Business{" "}
-                  </Link>
-                  <span className="text-neutral-500 w-28-px h-28-px rounded-circle bg-neutral-100 d-flex justify-content-center align-items-center transition-2 text-xs fw-semibold">
-                    01{" "}
-                  </span>
-                </li>
-                <li className="w-100 d-flex align-items-center justify-content-between flex-wrap gap-8 border-bottom border-dashed pb-12 mb-12">
-                  <Link
-                    to="/blog"
-                    className="text-hover-primary-600 transition-2"
-                  >
-                    {" "}
-                    Consulting{" "}
-                  </Link>
-                  <span className="text-neutral-500 w-28-px h-28-px rounded-circle bg-neutral-100 d-flex justify-content-center align-items-center transition-2 text-xs fw-semibold">
-                    01{" "}
-                  </span>
-                </li>
-                <li className="w-100 d-flex align-items-center justify-content-between flex-wrap gap-8 border-bottom border-dashed pb-12 mb-12">
-                  <Link
-                    to="/blog"
-                    className="text-hover-primary-600 transition-2"
-                  >
-                    {" "}
-                    Course{" "}
-                  </Link>
-                  <span className="text-neutral-500 w-28-px h-28-px rounded-circle bg-neutral-100 d-flex justify-content-center align-items-center transition-2 text-xs fw-semibold">
-                    01{" "}
-                  </span>
-                </li>
-                <li className="w-100 d-flex align-items-center justify-content-between flex-wrap gap-8">
-                  <Link
-                    to="/blog"
-                    className="text-hover-primary-600 transition-2"
-                  >
-                    {" "}
-                    Real Estate{" "}
-                  </Link>
-                  <span className="text-neutral-500 w-28-px h-28-px rounded-circle bg-neutral-100 d-flex justify-content-center align-items-center transition-2 text-xs fw-semibold">
-                    01{" "}
-                  </span>
-                </li>
-              </ul>
-            </div>
-          </div>
+          <Category link={"/blog"}/>
           {/* Tags */}
-          <div className="card">
-            <div className="card-header border-bottom">
-              <h6 className="text-xl mb-0">Tags</h6>
-            </div>
-            <div className="card-body p-24">
-              <div className="d-flex align-items-center flex-wrap gap-8">
-                <Link
-                  to="/blog"
-                  className="btn btn-sm btn-primary-600 bg-primary-50 bg-hover-primary-600 text-primary-600 border-0 d-inline-flex align-items-center gap-1 text-sm px-16 py-6"
-                >
-                  Development{" "}
-                </Link>
-                <Link
-                  to="/blog"
-                  className="btn btn-sm btn-primary-600 bg-primary-50 bg-hover-primary-600 text-primary-600 border-0 d-inline-flex align-items-center gap-1 text-sm px-16 py-6"
-                >
-                  Design{" "}
-                </Link>
-                <Link
-                  to="/blog"
-                  className="btn btn-sm btn-primary-600 bg-primary-50 bg-hover-primary-600 text-primary-600 border-0 d-inline-flex align-items-center gap-1 text-sm px-16 py-6"
-                >
-                  Technology{" "}
-                </Link>
-                <Link
-                  to="/blog"
-                  className="btn btn-sm btn-primary-600 bg-primary-50 bg-hover-primary-600 text-primary-600 border-0 d-inline-flex align-items-center gap-1 text-sm px-16 py-6"
-                >
-                  Popular{" "}
-                </Link>
-                <Link
-                  to="/blog"
-                  className="btn btn-sm btn-primary-600 bg-primary-50 bg-hover-primary-600 text-primary-600 border-0 d-inline-flex align-items-center gap-1 text-sm px-16 py-6"
-                >
-                  Codignator{" "}
-                </Link>
-                <Link
-                  to="/blog"
-                  className="btn btn-sm btn-primary-600 bg-primary-50 bg-hover-primary-600 text-primary-600 border-0 d-inline-flex align-items-center gap-1 text-sm px-16 py-6"
-                >
-                  Javascript{" "}
-                </Link>
-                <Link
-                  to="/blog"
-                  className="btn btn-sm btn-primary-600 bg-primary-50 bg-hover-primary-600 text-primary-600 border-0 d-inline-flex align-items-center gap-1 text-sm px-16 py-6"
-                >
-                  Bootstrap{" "}
-                </Link>
-                <Link
-                  to="/blog"
-                  className="btn btn-sm btn-primary-600 bg-primary-50 bg-hover-primary-600 text-primary-600 border-0 d-inline-flex align-items-center gap-1 text-sm px-16 py-6"
-                >
-                  PHP{" "}
-                </Link>
-              </div>
-            </div>
-          </div>
+         <Tags link={"/blog"}/>
         </div>
       </div>
     </div>

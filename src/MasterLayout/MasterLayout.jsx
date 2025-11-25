@@ -141,13 +141,13 @@ const MasterLayout = () => {
                   icon="flowbite:users-group-outline"
                   className="menu-icon"
                 />
-                <span>Blog</span>
+                <span className="font-gilroy">Blog</span>
               </Link>
               <ul className="sidebar-submenu">
                 <li>
                   <Link
                     to="/blog"
-                    className={pathname === "/blog" ? "active-page" : ""}
+                    className={pathname === "/blog" ? "active-page font-gilroy" : "font-gilroy" }
                   >
                     <i className="ri-circle-fill circle-icon text-primary-600 w-auto" />{" "}
                     Blog
@@ -158,7 +158,7 @@ const MasterLayout = () => {
                   <Link
                     to="/blog/add-blog"
                     className={
-                      pathname === "/blog/add-blog" ? "active-page" : ""
+                      pathname === "/blog/add-blog" ? "active-page font-gilroy" : "font-gilroy"
                     }
                   >
                     <i className="ri-circle-fill circle-icon text-info-main w-auto" />{" "}
@@ -175,13 +175,13 @@ const MasterLayout = () => {
                   icon="flowbite:users-group-outline"
                   className="menu-icon"
                 />
-                <span>Work</span>
+                <span className="font-gilroy">Work</span>
               </Link>
               <ul className="sidebar-submenu">
                 <li>
                   <Link
                     to="/work"
-                    className={pathname === "/work" ? "active-page" : ""}
+                    className={pathname === "/work" ? "active-page font-gilroy" : "font-gilroy"}
                   >
                     <i className="ri-circle-fill circle-icon text-primary-600 w-auto" />{" "}
                     Work
@@ -192,7 +192,7 @@ const MasterLayout = () => {
                   <Link
                     to="/work/add-work"
                     className={
-                      pathname === "/work/add-work" ? "active-page" : ""
+                      pathname === "/work/add-work" ? "active-page font-gilroy" : "font-gilroy"
                     }
                   >
                     <i className="ri-circle-fill circle-icon text-info-main w-auto" />{" "}
@@ -206,13 +206,13 @@ const MasterLayout = () => {
             <li className="dropdown">
               <Link to="#">
                 <Icon icon="hugeicons:invoice-03" className="menu-icon" />
-                <span>Invoice</span>
+                <span className="font-gilroy">Invoice</span>
               </Link>
               <ul className="sidebar-submenu">
                 <li>
                   <Link
                     to="/invoice"
-                    className={pathname === "/invoice" ? "active-page" : ""}
+                    className={pathname === "/invoice" ? "active-page font-gilroy" : "font-gilroy"}
                   >
                     <i className="ri-circle-fill circle-icon text-primary-600 w-auto" />{" "}
                     List
@@ -223,7 +223,7 @@ const MasterLayout = () => {
                   <Link
                     to="/invoice/invoice-add"
                     className={
-                      pathname === "/invoice/invoice-add" ? "active-page" : ""
+                      pathname === "/invoice/invoice-add" ? "active-page font-gilroy" : "font-gilroy"
                     }
                   >
                     <i className="ri-circle-fill circle-icon text-info-main w-auto" />{" "}
@@ -287,7 +287,7 @@ const MasterLayout = () => {
       </aside>
 
       <main
-        className={sidebarActive ? "dashboard-main active" : "dashboard-main"}
+        className={sidebarActive ? "dashboard-main active font-gilroy" : "dashboard-main font-gilroy"}
       >
         <div className="navbar-header">
           <div className="row align-items-center justify-content-between">

@@ -100,7 +100,7 @@ const BlogLayer = () => {
           const truncatedText = getTruncatedText(data.description, 100);
           return (
             <div className="col-xxl-3 col-lg-4 col-sm-6 " key={idx}>
-              <div className="card h-100 p-0 radius-12 overflow-hidden">
+              <div className="card h-100 p-0 radius-12 overflow-hidden font-gilroy">
                 <div className="card-body p-24">
                   <Link
                     to={"/blog/blog-details/" + data._id}
@@ -120,11 +120,11 @@ const BlogLayer = () => {
                     <div className="d-flex align-items-center gap-6 justify-content-between flex-wrap mb-16">
                       <Link
                         to={"/blog/blog-details/" + data._id}
-                        className="px-20 py-6 bg-neutral-100 rounded-pill bg-hover-neutral-300 text-neutral-600 fw-medium"
+                        className="px-20 py-6 bg-neutral-100 rounded-pill bg-hover-neutral-300 text-neutral-600 fw-medium font-gilroy"
                       >
                         Blog
                       </Link>
-                      <div className="d-flex align-items-center gap-8 text-neutral-500 fw-medium">
+                      <div className="d-flex align-items-center gap-8 text-neutral-500 fw-medium font-gilroy">
                         <i className="ri-calendar-2-line" />
                         {data.created_at.split("T")[0]}
                       </div>
@@ -132,7 +132,7 @@ const BlogLayer = () => {
                     <h6 className="mb-16">
                       <Link
                         to={"/blog/blog-details/" + data._id}
-                        className="text-line-2 text-hover-primary-600 text-xl transition-2"
+                        className="text-line-2 text-hover-primary-600 text-xl transition-2 font-gilroy"
                       >
                         {data.title}
                       </Link>
@@ -151,13 +151,13 @@ const BlogLayer = () => {
 
                     <div className="flex justify-around items-center pt-6">
                       <button
-                        className="bg-red py-2 px-2 rounded-xl"
+                        className="bg-red py-2 px-2 rounded-xl font-gilroy"
                         onClick={() => deletePost(data._id)}
                       >
                         Delete
                       </button>
                       <Link
-                        className="bg-yellow-300 text-black py-2 px-2 rounded-xl"
+                        className="bg-yellow-300 text-black py-2 px-2 rounded-xl font-gilroy"
                         to={"/blog/blog-edit/" + data._id}
                       >
                         Update

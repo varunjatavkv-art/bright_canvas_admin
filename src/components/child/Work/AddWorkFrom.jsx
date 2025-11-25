@@ -248,7 +248,7 @@ const AddBlogForm = () => {
     <div className="col-lg-8">
       <div className="card mt-24">
         <div className="card-header border-bottom">
-          <h6 className="text-xl mb-0">Add New Work</h6>
+          <h6 className="text-xl mb-0 font-gilroy">Add New Work</h6>
         </div>
         <div className="card-body p-24">
           <form
@@ -258,7 +258,7 @@ const AddBlogForm = () => {
           >
             <div>
               <label
-                className="form-label fw-bold text-neutral-900"
+                className="form-label fw-bold text-neutral-900 font-gilroy"
                 htmlFor="title"
               >
                 Works Title:{" "}
@@ -275,7 +275,7 @@ const AddBlogForm = () => {
             </div>
 
             <div>
-              <label className="form-label fw-bold text-neutral-900">
+              <label className="form-label fw-bold text-neutral-900 font-gilroy">
                 Work Description
               </label>
               <div className="border border-neutral-200 radius-8 overflow-hidden">
@@ -337,7 +337,7 @@ const AddBlogForm = () => {
             </div>
 
             <div>
-              <label className="form-label fw-bold text-neutral-900">
+              <label className="form-label fw-bold text-neutral-900 font-gilroy">
                 Service Description
               </label>
               <div className="border border-neutral-200 radius-8 overflow-hidden">

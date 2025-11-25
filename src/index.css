@@ -2,7 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
-
+body {
+  font-family: 'Gilroy', sans-serif;
+}
 /* src/index.css or similar global CSS file */
 
 /* ---------------------------------- */
