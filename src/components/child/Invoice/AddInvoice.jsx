@@ -236,11 +236,18 @@ const AddInvoice = () => {
                         />
                       </p>
                     </div>
-                    <div className="col-sm-4">
+                    <div className="col-sm-4 invoice-logo">
                       <img
-                        src="../../assets/images/logo/Bright_Canvas_logo.webp"
-                        alt="image_icon"
-                        className="mb-8"
+                        src="../assets/images/logo/Logo BLACK.png"
+                        alt="site logo"
+                        className="light-logo mb-8"
+                        height={"100px"}
+                        width={"100px"}
+                      />
+                      <img
+                        src="../assets/images/logo/Bright_Canvas_logo.webp"
+                        alt="site logo"
+                        className="dark-logo mb-8"
                         height={"100px"}
                         width={"100px"}
                       />
@@ -359,7 +366,7 @@ const AddInvoice = () => {
                             <th scope="col" className="text-sm">
                               Qty
                             </th>
-                            
+
                             <th scope="col" className="text-sm">
                               Unit Price
                             </th>
@@ -410,7 +417,7 @@ const AddInvoice = () => {
                                   className="w-16 text-center border-b border-gray-200 p-1 focus:outline-none focus:border-blue-400"
                                 />
                               </td>
-                              
+
                               <td className="px-6 py-3 text-right">
                                 <div className="flex items-center justify-end">
                                   <span>₹</span>

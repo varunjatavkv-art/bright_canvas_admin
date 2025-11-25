@@ -273,11 +273,18 @@ const EditInvoice = () => {
                       </p>
                     </div>
                     {/* ... (Logo and Business Info section remains the same) ... */}
-                    <div className="col-sm-4">
+                    <div className="col-sm-4 invoice-logo">
                     <img
+                        src="../../assets/images/logo/Logo BLACK.png"
+                        alt="site logo"
+                        className="light-logo mb-8"
+                        height={"100px"}
+                        width={"100px"}
+                      />
+                      <img
                         src="../../assets/images/logo/Bright_Canvas_logo.webp"
-                        alt="image_icon"
-                        className="mb-8"
+                        alt="site logo"
+                        className="dark-logo mb-8"
                         height={"100px"}
                         width={"100px"}
                       />
