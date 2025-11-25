@@ -14,6 +14,7 @@ const InvoicePreview = () => {
   const [singleInvoice, setSingleInvoice] = useState({});
   const [Loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
+  const [count,setCount] = useState(1);
 
   useEffect(() => {
     setLoading(true);
@@ -23,6 +24,8 @@ const InvoicePreview = () => {
           import.meta.env.VITE_API + "api/invoice/single/" + invoiceId
         );
         if (res.status === 200) {
+          // console.log(res.data);
+          
           setSingleInvoice(res.data);
           setLoading(false);
           setError(false);
@@ -34,9 +37,15 @@ const InvoicePreview = () => {
     };
 
     fetchSingleInvoice();
+    console.log(singleInvoice);
   }, [invoiceId]);
   
+ 
+  
 
+  // useEffect(()=> {
+  //   setCount((prevCount) =>prevCount + 1);
+  // },[count])
   if (Loading) {
     return <LoadingComponent />;
   }
@@ -123,11 +132,18 @@ const InvoicePreview = () => {
                         </span>{" "}
                       </p>
                     </div>
-                    <div className="col-sm-4">
+                   <div className="col-sm-4 invoice-logo">
+                      <img
+                        src="../../assets/images/logo/Logo BLACK.png"
+                        alt="site logo"
+                        className="light-logo mb-8"
+                        height={"100px"}
+                        width={"100px"}
+                      />
                       <img
                         src="../../assets/images/logo/Bright_Canvas_logo.webp"
-                        alt="image_icon"
-                        className="mb-8"
+                        alt="site logo"
+                        className="dark-logo mb-8"
                         height={"100px"}
                         width={"100px"}
                       />
@@ -247,7 +263,7 @@ const InvoicePreview = () => {
                             }
                             return (
                               <tr key={item._id}>
-                                <td>01</td>
+                                <td> {String(item.serial).padStart(2, "0")}</td>
                                 <td>{item.description}</td>
                                 <td>{item.qty}</td>
                                 <td>{unit}</td>
