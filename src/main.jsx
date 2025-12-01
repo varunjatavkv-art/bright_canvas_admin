@@ -10,12 +10,15 @@ import Blog from "./components/Blog.jsx";
 import AddBlog from "./components/child/Blog/AddBlog.jsx";
 import BlogDetailsLayer from "./components/child/Blog/BlogDetails.jsx";
 import BlogLayer from "./components/child/Blog/BlogLayer.jsx";
+import EditBlog from "./components/child/Blog/EditBlog.jsx";
+
 
 //? Works
 import Work from "./components/Work.jsx";
 import AddWork from "./components/child/Work/AddWork.jsx";
 import WorkDetails from "./components/child/Work/WorkDetails.jsx";
 import WorkLayer from "./components/child/Work/WorkLayer.jsx";
+import EditWork from "./components/child/Work/EditWork.jsx";
 
 //? Invoice
 import Invoice from "./components/Invoice.jsx";
@@ -23,9 +26,11 @@ import AddInvoice from "./components/child/Invoice/AddInvoice.jsx";
 import InvoiceList from "./components/child/Invoice/InvoiceList.jsx";
 import InvoicePreview from "./components/child/Invoice/InvoicePreview.jsx";
 import EditInvoice from "./components/child/Invoice/EditInvoice.jsx";
+
+//! Not found
 import NotFound from "./components/common/NotFound.jsx";
-import EditBlog from "./components/child/Blog/EditBlog.jsx";
-import EditWork from "./components/child/Work/EditWork.jsx";
+
+
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>

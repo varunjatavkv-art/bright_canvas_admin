@@ -58,25 +58,7 @@ const InvoicePreview = () => {
       <div className="card">
         <div className="card-header">
           <div className="d-flex flex-wrap align-items-center justify-content-end gap-2">
-            <a
-              href={`https://wa.me/${
-                singleInvoice?.data?.customer?.phone
-              }?text=${encodeURIComponent(
-                `Hello ${
-                  singleInvoice?.data?.customer?.name
-                },\n\nYour Invoice is ready! You can view and download it here:${
-                  import.meta.env.VITE_API
-                }/invoice_pdf/invoice_${
-                  singleInvoice?.data?.metadata?.invoiceNumber
-                }.pdf`
-              )}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn btn-sm btn-success radius-8 d-inline-flex align-items-center gap-1 ms-2"
-            >
-              <Icon icon="cib:whatsapp" className="text-xl" />
-              Send via WhatsApp
-            </a>
+           
             <a
               href={
                 import.meta.env.VITE_API +
