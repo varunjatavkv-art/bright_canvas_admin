@@ -12,7 +12,7 @@ const BlogLayer = () => {
   const [error, setError] = useState(false);
   const [page, setPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
-  const [limit, setLimit] = useState(5);
+  const [limit, setLimit] = useState(8);
 
   // const outletContext = useOutletContext();
   // console.log(outletContext);
@@ -149,7 +149,7 @@ const BlogLayer = () => {
                       <i className="ri-arrow-right-double-line text-xl d-flex line-height-1" />
                     </Link>
 
-                    <div className="flex justify-around items-center pt-6">
+                    <div style={{display:"flex", justifyContent: "space-between", alignItems:"center"}}>
                       <button
                         className="bg-red py-2 px-2 rounded-xl font-gilroy"
                         onClick={() => deletePost(data._id)}
@@ -157,7 +157,7 @@ const BlogLayer = () => {
                         Delete
                       </button>
                       <Link
-                        className="bg-yellow-300 text-black py-2 px-2 rounded-xl font-gilroy"
+                        style={{backgroundColor:"#e7e7e7", padding:"5px", color:"black"}}
                         to={"/blog/blog-edit/" + data._id}
                       >
                         Update
@@ -170,7 +170,7 @@ const BlogLayer = () => {
           );
         })}
         {totalCount > limit && (
-          <div className="flex items-center gap-4 justify-center">
+          <div style={{display:"flex", justifyContent: "center", alignItems:"center", gap:"10px"}}>
             <button onClick={handleDecrement}>Previous</button>
             <p>{page}</p>
             <button onClick={handleIncrement}>Next</button>

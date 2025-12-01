@@ -11,7 +11,7 @@ const WorkLayer = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(5);
+  const [limit, setLimit] = useState(8);
   const [totalCount, setTotalCount] = useState(0);
 
   useEffect(() => {
@@ -141,16 +141,19 @@ const WorkLayer = () => {
                       Read More
                       <i className="ri-arrow-right-double-line text-xl d-flex line-height-1" />
                     </Link>
-                    <div className="flex justify-around items-center pt-6">
+                    <div style={{display:"flex", justifyContent: "space-between", alignItems:"center"}}>
                       <button
-                        className="bg-red text-black py-2 px-2 rounded-lg"
+                        className="bg-red text-black p-4 rounded-xl"
                         onClick={() => deleteWork(data._id)}
                       >
                         Delete
                       </button>
+                      <button>
+                        
+                      </button>
                       <Link
-                        className="bg-yellow-300 text-black py-2 px-2 rounded-xl"
                         to={"/work/work-edit/" + data._id}
+                        style={{backgroundColor:"#e7e7e7", padding:"5px", color:"black"}}
                       >
                         Update
                       </Link>
@@ -163,7 +166,7 @@ const WorkLayer = () => {
         })}
 
         {totalCount > limit && (
-          <div className="flex items-center gap-4 justify-center">
+          <div style={{display:"flex", justifyContent: "center", alignItems:"center", gap:"10px"}}>
             <button onClick={handleDecrement}>Previous</button>
             <p>{page}</p>
             <button onClick={handleIncrement}>Next</button>
