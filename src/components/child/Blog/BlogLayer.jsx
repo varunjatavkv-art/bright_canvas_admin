@@ -19,24 +19,26 @@ const BlogLayer = () => {
 
   useEffect(() => {
     const fetchBlogs = async () => {
-      setLoading(true);
-      try {
-        const res = await axios.get(
-          import.meta.env.VITE_API + `api/blogs?page=${page}&limit=${limit}`
-        );
-        if (res.data.data) {
-          setLoading(false);
+        setLoading(true);
+        try {
+           
+            const res = await axios.get('http://localhost:8000/api/blogs?status=draft');
+            // Check if the structure matches what the backend sends
+            if (res.data && res.data.data) {
+                setBlog(res.data.data); // Set the array of blogs
+                setTotalCount(res.data.totalCounts);
+            }
+            setLoading(false);
+            setError(false);
+        } catch (error) {
+            console.error("Error fetching blogs:", error);
+            setError(true);
+            setLoading(false);
         }
-        setBlog(res.data.data);
-        setTotalCount(res.data.totalCounts);
-        setError(false);
-      } catch (error) {
-        console.log("error is fetching blogs", error);
-        setError(true);
-      }
     };
     fetchBlogs();
-  }, [page]);
+}, []);
+  
 
   const getTruncatedText = (html, maxLength) => {
     if (!html) return "";
@@ -91,6 +93,8 @@ const BlogLayer = () => {
     return <NotFound />;
   }
 
+  console.log(blog);
+  
   return (
     <>
       <Breadcrumb title={"Blog"} />
@@ -106,15 +110,11 @@ const BlogLayer = () => {
                     to={"/blog/blog-details/" + data._id}
                     className="w-100 max-h-194-px radius-8 overflow-hidden"
                   >
-                    <img
-                      src={
-                        data.image_path?.startsWith("http")
-                          ? data.image_path
-                          : import.meta.env.VITE_API + `${data.image_path}`
-                      }
-                      alt={data.title}
-                      className="w-100 h-100 object-fit-cover"
-                    />
+                  <img 
+                           src={data.imageUrl} // n8n should provide the full public URL [cite: 137]
+                            alt={data.title} 
+                            className="w-100 h-100 object-fit-cover" 
+                        />
                   </Link>
                   <div className="mt-20">
                     <div className="d-flex align-items-center gap-6 justify-content-between flex-wrap mb-16">
@@ -126,7 +126,7 @@ const BlogLayer = () => {
                       </Link>
                       <div className="d-flex align-items-center gap-8 text-neutral-500 fw-medium font-gilroy">
                         <i className="ri-calendar-2-line" />
-                        {data.created_at.split("T")[0]}
+                        {data.createdAt.split("T")[0]}
                       </div>
                     </div>
                     <h6 className="mb-16">
